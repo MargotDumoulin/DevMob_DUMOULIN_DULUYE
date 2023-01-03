@@ -45,7 +45,7 @@ function CreatePokemonStack() {
 
 function RootStack() {
     return (
-        <Tab.Navigator screenOptions={{headerShown: false}}>
+        <Tab.Navigator screenOptions={{headerShown: false}} initialRouteName="Pokdédex">
             <Tab.Screen
                 name="Carte"
                 component={MapStack}/>
