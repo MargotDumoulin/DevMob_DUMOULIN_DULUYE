@@ -1,4 +1,4 @@
-import {Text, View} from "react-native";
+import { Text, View } from "react-native";
 
 export const CreatePokemonScreen = () => {
     return (
@@ -6,4 +6,4 @@ export const CreatePokemonScreen = () => {
             <Text>Create Pokemon Screen</Text>
         </View>
     );
-}
+};
