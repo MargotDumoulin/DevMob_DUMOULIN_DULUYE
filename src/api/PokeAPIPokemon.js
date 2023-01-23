@@ -10,9 +10,11 @@ const getPokemonBaseStat = (stats, name) => {
         })
         .map((item) => item.base_stat)[0];
 };
+
 const getPokemonId = (json) => {
     return Number(json.url.substring(34, json.url.lastIndexOf("/")));
 };
+
 const getArea = (json) => {
     return Number(
         json.location_area.url.substring(
@@ -21,6 +23,7 @@ const getArea = (json) => {
         )
     );
 };
+
 const getPokemon = (pokemon, encounter) => {
     const abilityList = pokemon.abilities.map((item) => item.ability.name);
     const typeList = pokemon.types.map((item) => item.type.name);

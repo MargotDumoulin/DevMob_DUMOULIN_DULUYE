@@ -1,7 +1,6 @@
 import { Text, View } from "react-native";
 import { useEffect, useState } from "react";
-import { getAllLocations, getLocationById } from "../../apis/PokeAPILocation";
-import { getPokemonById } from "../../apis/PokeAPIPokemon";
+import { getPokemonById } from "../../api/PokeAPIPokemon";
 
 export const PokedexScreen = () => {
     const [nameIdList, setNameIdList] = useState([]);
