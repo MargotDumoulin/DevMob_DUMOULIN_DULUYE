@@ -11,8 +11,8 @@ const getPokemonBaseStat = (stats, name) => {
         .map((item) => item.base_stat)[0];
 };
 
-const getPokemonId = (json) => {
-    return Number(json.url.substring(34, json.url.lastIndexOf("/")));
+export const getPokemonId = (url) => {
+    return url.split("https://pokeapi.co/api/v2/pokemon/")?.[1]?.slice(0, -1);
 };
 
 const getArea = (json) => {
@@ -49,38 +49,64 @@ const getPokemon = (pokemon, encounter) => {
     };
 };
 
-export const getAllPokemon = async () => {
-    const limit = POKE_API_WS_LIMIT;
-    let idList = [];
-    let pokemonList = [];
-    let offset = 0;
-    let count = -1;
+// export const getAllPokemons = async () => {
+//     const limit = POKE_API_WS_LIMIT;
+//     let idList = [];
+//     let pokemonList = [];
+//     let offset = 0;
+//     let count = -1;
+//     try {
+//         while (count === -1 || offset < count) {
+//             console.log(
+//                 `[GET] : /pokemon (limit : ${limit}, offset : ${offset})`
+//             );
+//             const response = await fetch(
+//                 `${POKE_API_WS_BASE_URL}/pokemon?offset=${offset}&limit=${limit}`
+//             );
+//             const json = await response.json();
+
+//             idList = [
+//                 ...idList,
+//                 ...json.results.map((item) => getPokemonId(item)),
+//             ];
+
+//             count = json.count;
+//             offset += limit;
+//         }
+
+//         for (let id of idList) {
+//             pokemonList = [...pokemonList, await getPokemonById(id)];
+//         }
+
+//         return pokemonList;
+//     } catch (error) {
+//         console.error(error);
+//     }
+// };
+
+export const getAllPokemons = async (page = 1) => {
     try {
-        while (count === -1 || offset < count) {
-            console.log(
-                `[GET] : /pokemon (limit : ${limit}, offset : ${offset})`
-            );
-            const response = await fetch(
-                `${POKE_API_WS_BASE_URL}/pokemon?offset=${offset}&limit=${limit}`
-            );
-            const json = await response.json();
+        const limit = 20;
+        const offset = (page - 1) * limit;
+        const url = `${POKE_API_WS_BASE_URL}/pokemon?offset=${offset}&limit=${limit}`;
+        const response = await fetch(url);
+        const json = await response.json();
 
-            idList = [
-                ...idList,
-                ...json.results.map((item) => getPokemonId(item)),
-            ];
+        const pokemonsWithoutDetails = json.results;
+        const pokemonsWithDetails = [];
 
-            count = json.count;
-            offset += limit;
+        for (const pokemon of pokemonsWithoutDetails) {
+            const pokeDetails = await getPokemonById(getPokemonId(pokemon.url));
+            pokemonsWithDetails.push({
+                ...pokemon,
+                ...pokeDetails,
+            });
         }
 
-        for (let id of idList) {
-            pokemonList = [...pokemonList, await getPokemonById(id)];
-        }
-
-        return pokemonList;
+        return { ...json, results: pokemonsWithDetails };
     } catch (error) {
-        console.error(error);
+        console.log(`Error with function getAllPokemons: ${error.message}`);
+        throw error;
     }
 };
 
