@@ -2,6 +2,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MapScreen } from "./map/MapScreen";
 import { PokedexScreen } from "./pokedex/PokedexScreen";
+import { Pokemon } from "./pokedex/Pokemon";
 import { CreatePokemonScreen } from "./create/CreatePokemonScreen";
 
 const MapStackNavigator = createStackNavigator();
@@ -30,6 +31,11 @@ function PokedexStack() {
                 component={PokedexScreen}
                 options={{ title: "Pokédex" }}
             />
+            <PokedexStackNavigator.Screen
+                name="ViewPokemon"
+                component={Pokemon}
+                options={{ title: "Pokédex" }}
+            />
         </PokedexStackNavigator.Navigator>
     );
 }
@@ -50,10 +56,10 @@ function RootStack() {
     return (
         <Tab.Navigator
             screenOptions={{ headerShown: false }}
-            initialRouteName="Pokdédex"
+            initialRouteName="Pokédex"
         >
             <Tab.Screen name="Carte" component={MapStack} />
-            <Tab.Screen name="Pokdédex" component={PokedexStack} />
+            <Tab.Screen name="Pokédex" component={PokedexStack} />
             <Tab.Screen name="Creation" component={CreatePokemonStack} />
         </Tab.Navigator>
     );

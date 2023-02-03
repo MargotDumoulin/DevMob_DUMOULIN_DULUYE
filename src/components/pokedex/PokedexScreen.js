@@ -11,14 +11,18 @@ import { getAllPokemons, getPokemonId } from "../../api/PokeAPIPokemon";
 import Colors from "../../definitions/Colors";
 import DisplayError from "../DisplayError";
 import PokemonListItem from "./PokemonListItem";
+import { useDispatch } from "react-redux";
+import { addPokemons } from "../../store/reducers/pokemonsSlice";
 
-export const PokedexScreen = () => {
+export const PokedexScreen = ({ navigation }) => {
     const [pokemons, setPokemons] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [isMorePages, setIsMorePages] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isError, setIsError] = useState(false);
+
+    const dispatch = useDispatch();
 
     const newSearchPokemon = () => {};
 
@@ -33,14 +37,12 @@ export const PokedexScreen = () => {
         try {
             const res = await getAllPokemons(pageToRequest);
             setPokemons([...currentPokemons, ...res.results]);
-            console.log([...currentPokemons, ...res.results]);
+            dispatch(addPokemons(res.results));
             setCurrentPage(pageToRequest);
             pageToRequest == res.count / 20
                 ? setIsMorePages(false)
                 : setIsMorePages(true);
         } catch (error) {
-            console.log({ error });
-            console.log("ICI");
             setIsError(true);
             setPokemons([]);
             setIsMorePages(true);
@@ -48,6 +50,10 @@ export const PokedexScreen = () => {
         }
 
         setIsRefreshing(false);
+    };
+
+    const navigatePokemonDetails = (pokemonID) => {
+        navigation.navigate("ViewPokemon", { pokemonID });
     };
 
     const newSearchPokemons = () => {
@@ -85,7 +91,9 @@ export const PokedexScreen = () => {
                     renderItem={({ item }) => (
                         <PokemonListItem
                             pokemonData={item}
-                            onClick={() => {}}
+                            onClick={() => {
+                                navigatePokemonDetails(item.id);
+                            }}
                         />
                     )}
                     onEndReached={loadMorePokemons}
