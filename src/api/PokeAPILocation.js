@@ -6,6 +6,7 @@ import {
 const getLocationId = (json) => {
     return json.url.substring(35, json.url.lastIndexOf("/"));
 };
+
 const getLocation = (json) => {
     const areaList = json.areas.map((item) => getArea(item));
 

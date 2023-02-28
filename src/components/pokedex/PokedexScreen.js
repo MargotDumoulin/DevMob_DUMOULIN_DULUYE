@@ -1,50 +1,73 @@
 import { useEffect, useState } from "react";
+import { View, TextInput, Button, StyleSheet, FlatList } from "react-native";
 import {
-    View,
-    TextInput,
-    Button,
-    StyleSheet,
-    FlatList,
-    Text,
-} from "react-native";
-import { getAllPokemons, getPokemonId } from "../../api/PokeAPIPokemon";
+    getPokemonId,
+    getPokemonById,
+    getAllPokemons,
+} from "../../api/PokeAPIPokemon";
 import Colors from "../../definitions/Colors";
 import DisplayError from "../DisplayError";
 import PokemonListItem from "./PokemonListItem";
-import { useDispatch } from "react-redux";
-import { addPokemons } from "../../store/reducers/pokemonsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+    addPokemonsCache,
+    addPokemonDetails,
+} from "../../store/reducers/pokemonsSlice";
+
+const limit = 20;
 
 export const PokedexScreen = ({ navigation }) => {
-    const [pokemons, setPokemons] = useState([]);
+    // const [pokemons, setPokemons] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [isMorePages, setIsMorePages] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isError, setIsError] = useState(false);
 
+    const pokemonsCached = useSelector((state) => state.pokemons.pokemonsCache);
+
     const dispatch = useDispatch();
 
     const newSearchPokemon = () => {};
 
     useEffect(() => {
-        searchPokemons([], 1);
+        cachePokemons();
+        searchPokemons(1);
     }, []);
 
-    const searchPokemons = async (currentPokemons, pageToRequest) => {
+    const cachePokemons = async () => {
+        // Setup cache
+        const res = await getAllPokemons();
+        dispatch(addPokemonsCache(res.results));
+    };
+
+    const searchPokemons = async (pageToRequest) => {
         setIsRefreshing(true);
         setIsError(false);
 
         try {
-            const res = await getAllPokemons(pageToRequest);
-            setPokemons([...currentPokemons, ...res.results]);
-            dispatch(addPokemons(res.results));
+            const offset = (pageToRequest - 1) * limit;
+            // Go through pokemons cache and get details for each pokemon needed
+            for (let index = offset; index < limit * pageToRequest; index++) {
+                const pokemon = pokemonsCached[index];
+                if (!pokemon.id) {
+                    // If the pokemon has an id, it means it's already loaded!
+                    const pokeDetails = await getPokemonById(
+                        getPokemonId(pokemon.url)
+                    );
+                    dispatch(addPokemonDetails(pokeDetails));
+                }
+            }
+
+            // TODO: search through cache by text
+
             setCurrentPage(pageToRequest);
-            pageToRequest == res.count / 20
+            pageToRequest === pokemonsCached.length / limit
                 ? setIsMorePages(false)
                 : setIsMorePages(true);
         } catch (error) {
+            console.error({ error });
             setIsError(true);
-            setPokemons([]);
             setIsMorePages(true);
             setCurrentPage(1);
         }
@@ -58,12 +81,12 @@ export const PokedexScreen = ({ navigation }) => {
 
     const newSearchPokemons = () => {
         Keyboard.dismiss();
-        searchPokemons([], 1);
+        searchPokemons(1);
     };
 
     const loadMorePokemons = () => {
         if (isMorePages) {
-            searchPokemons(pokemons, currentPage + 1);
+            searchPokemons(currentPage + 1);
         }
     };
 
@@ -86,7 +109,7 @@ export const PokedexScreen = ({ navigation }) => {
                 <DisplayError message="Impossible de récupérer les Pokémons" />
             ) : (
                 <FlatList
-                    data={pokemons}
+                    data={pokemonsCached.slice(0, currentPage * limit)}
                     keyExtractor={(item) => getPokemonId(item.url)}
                     renderItem={({ item }) => (
                         <PokemonListItem
