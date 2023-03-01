@@ -20,9 +20,11 @@ export const PokedexScreen = ({ navigation }) => {
     // const [pokemons, setPokemons] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [results, setResults] = useState([]);
     const [isMorePages, setIsMorePages] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isError, setIsError] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
     const pokemonsCached = useSelector((state) => state.pokemons.pokemonsCache);
 
@@ -32,34 +34,71 @@ export const PokedexScreen = ({ navigation }) => {
 
     useEffect(() => {
         cachePokemons();
-        searchPokemons(1);
     }, []);
+
+    useEffect(() => {
+        // Once cache is setup, we can initiate the search
+        if (pokemonsCached.length > 0 && !isMounted) {
+            console.log({ pokemonsCachedTaille: pokemonsCached.length });
+            searchPokemons([], 1);
+            setIsMounted(true);
+        }
+    }, [pokemonsCached]);
 
     const cachePokemons = async () => {
         // Setup cache
         const res = await getAllPokemons();
         dispatch(addPokemonsCache(res.results));
+        console.log({ resTaille: res.results.length });
     };
 
-    const searchPokemons = async (pageToRequest) => {
+    const searchPokemons = async (currentPokemons, pageToRequest) => {
         setIsRefreshing(true);
         setIsError(false);
 
+        console.log("on cherche");
         try {
+            const pokemonsSearched = searchTerm
+                ? pokemonsCached.filter((pokemon) =>
+                      pokemon.name.startsWith(searchTerm)
+                  )
+                : pokemonsCached;
+
+            console.log({ taille: pokemonsCached.length });
             const offset = (pageToRequest - 1) * limit;
+
+            console.log({ offset });
+            console.log({ limit });
+            console.log({ pageToRequest });
+
+            pokemonsSearched
+                .slice(offset, limit * pageToRequest)
+                .forEach((poke) => {
+                    console.log({ name: poke.name });
+                });
+
+            const pokemonsToAdd = [];
+
             // Go through pokemons cache and get details for each pokemon needed
             for (let index = offset; index < limit * pageToRequest; index++) {
-                const pokemon = pokemonsCached[index];
-                if (!pokemon.id) {
-                    // If the pokemon has an id, it means it's already loaded!
-                    const pokeDetails = await getPokemonById(
-                        getPokemonId(pokemon.url)
+                const pokemon = pokemonsSearched[index];
+                let pokeDetails = undefined;
+                if (pokemon) {
+                    if (!pokemon.id) {
+                        console.log({ pokemon });
+                        // If the pokemon has an id, it means it's already loaded!
+                        pokeDetails = await getPokemonById(
+                            getPokemonId(pokemon.url)
+                        );
+                        dispatch(addPokemonDetails(pokeDetails));
+                    }
+                    pokemonsToAdd.push(
+                        pokeDetails ? { ...pokeDetails, ...pokemon } : pokemon
                     );
-                    dispatch(addPokemonDetails(pokeDetails));
                 }
-            }
 
-            // TODO: search through cache by text
+                setResults([...currentPokemons, ...pokemonsToAdd]);
+            }
 
             setCurrentPage(pageToRequest);
             pageToRequest === pokemonsCached.length / limit
@@ -80,13 +119,14 @@ export const PokedexScreen = ({ navigation }) => {
     };
 
     const newSearchPokemons = () => {
-        Keyboard.dismiss();
-        searchPokemons(1);
+        //Keyboard.dismiss();
+        console.log("on pas là nan?");
+        searchPokemons([], 1);
     };
 
     const loadMorePokemons = () => {
         if (isMorePages) {
-            searchPokemons(currentPage + 1);
+            searchPokemons(results, currentPage + 1);
         }
     };
 
@@ -102,14 +142,14 @@ export const PokedexScreen = ({ navigation }) => {
                 <Button
                     title="Rechercher"
                     color={Colors.primary_blue}
-                    onPress={newSearchPokemon}
+                    onPress={newSearchPokemons}
                 />
             </View>
             {isError ? (
                 <DisplayError message="Impossible de récupérer les Pokémons" />
             ) : (
                 <FlatList
-                    data={pokemonsCached.slice(0, currentPage * limit)}
+                    data={results}
                     keyExtractor={(item) => getPokemonId(item.url)}
                     renderItem={({ item }) => (
                         <PokemonListItem
@@ -119,8 +159,8 @@ export const PokedexScreen = ({ navigation }) => {
                             }}
                         />
                     )}
-                    onEndReached={loadMorePokemons}
-                    onEndReachedThreshold={0.5}
+                    // onEndReached={loadMorePokemons}
+                    // onEndReachedThreshold={0.5}
                     refreshing={isRefreshing}
                     onRefresh={newSearchPokemons}
                 />

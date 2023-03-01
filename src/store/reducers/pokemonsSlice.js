@@ -12,11 +12,9 @@ const pokemonsSlice = createSlice({
     initialState: initialState,
     reducers: {
         addPokemonsCache(state, action) {
+            AsyncStorage.clear();
             if (state.pokemonsCache.length == 0) {
-                state.pokemonsCache = [
-                    ...state.pokemonsCache,
-                    ...action.payload,
-                ];
+                state.pokemonsCache = action.payload;
             }
         },
         addPokemonDetails(state, action) {
