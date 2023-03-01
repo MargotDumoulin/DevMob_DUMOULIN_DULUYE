@@ -56,7 +56,6 @@ export const PokedexScreen = ({ navigation }) => {
         setIsRefreshing(true);
         setIsError(false);
 
-        console.log("on cherche");
         try {
             const pokemonsSearched = searchTerm
                 ? pokemonsCached.filter((pokemon) =>
@@ -64,19 +63,7 @@ export const PokedexScreen = ({ navigation }) => {
                   )
                 : pokemonsCached;
 
-            console.log({ taille: pokemonsCached.length });
             const offset = (pageToRequest - 1) * limit;
-
-            console.log({ offset });
-            console.log({ limit });
-            console.log({ pageToRequest });
-
-            pokemonsSearched
-                .slice(offset, limit * pageToRequest)
-                .forEach((poke) => {
-                    console.log({ name: poke.name });
-                });
-
             const pokemonsToAdd = [];
 
             // Go through pokemons cache and get details for each pokemon needed
@@ -85,7 +72,6 @@ export const PokedexScreen = ({ navigation }) => {
                 let pokeDetails = undefined;
                 if (pokemon) {
                     if (!pokemon.id) {
-                        console.log({ pokemon });
                         // If the pokemon has an id, it means it's already loaded!
                         pokeDetails = await getPokemonById(
                             getPokemonId(pokemon.url)
@@ -96,10 +82,9 @@ export const PokedexScreen = ({ navigation }) => {
                         pokeDetails ? { ...pokeDetails, ...pokemon } : pokemon
                     );
                 }
-
-                setResults([...currentPokemons, ...pokemonsToAdd]);
             }
 
+            setResults([...currentPokemons, ...pokemonsToAdd]);
             setCurrentPage(pageToRequest);
             pageToRequest === pokemonsCached.length / limit
                 ? setIsMorePages(false)
@@ -120,7 +105,6 @@ export const PokedexScreen = ({ navigation }) => {
 
     const newSearchPokemons = () => {
         //Keyboard.dismiss();
-        console.log("on pas là nan?");
         searchPokemons([], 1);
     };
 
@@ -159,8 +143,8 @@ export const PokedexScreen = ({ navigation }) => {
                             }}
                         />
                     )}
-                    // onEndReached={loadMorePokemons}
-                    // onEndReachedThreshold={0.5}
+                    onEndReached={loadMorePokemons}
+                    onEndReachedThreshold={0.1}
                     refreshing={isRefreshing}
                     onRefresh={newSearchPokemons}
                 />
