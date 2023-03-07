@@ -1,50 +1,97 @@
 import { useEffect, useState } from "react";
+import { View, TextInput, Button, StyleSheet, FlatList } from "react-native";
 import {
-    View,
-    TextInput,
-    Button,
-    StyleSheet,
-    FlatList,
-    Text,
-} from "react-native";
-import { getAllPokemons, getPokemonId } from "../../api/PokeAPIPokemon";
+    getPokemonId,
+    getPokemonById,
+    getAllPokemons,
+} from "../../api/PokeAPIPokemon";
 import Colors from "../../definitions/Colors";
 import DisplayError from "../DisplayError";
 import PokemonListItem from "./PokemonListItem";
-import { useDispatch } from "react-redux";
-import { addPokemons } from "../../store/reducers/pokemonsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+    addPokemonsCache,
+    addPokemonDetails,
+} from "../../store/reducers/pokemonsSlice";
+
+const limit = 20;
 
 export const PokedexScreen = ({ navigation }) => {
-    const [pokemons, setPokemons] = useState([]);
+    // const [pokemons, setPokemons] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [results, setResults] = useState([]);
     const [isMorePages, setIsMorePages] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isError, setIsError] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    const pokemonsCached = useSelector((state) => state.pokemons.pokemonsCache);
 
     const dispatch = useDispatch();
 
     const newSearchPokemon = () => {};
 
     useEffect(() => {
-        searchPokemons([], 1);
+        cachePokemons();
     }, []);
+
+    useEffect(() => {
+        // Once cache is setup, we can initiate the search
+        if (pokemonsCached.length > 0 && !isMounted) {
+            console.log({ pokemonsCachedTaille: pokemonsCached.length });
+            searchPokemons([], 1);
+            setIsMounted(true);
+        }
+    }, [pokemonsCached]);
+
+    const cachePokemons = async () => {
+        // Setup cache
+        const res = await getAllPokemons();
+        dispatch(addPokemonsCache(res.results));
+        console.log({ resTaille: res.results.length });
+    };
 
     const searchPokemons = async (currentPokemons, pageToRequest) => {
         setIsRefreshing(true);
         setIsError(false);
 
         try {
-            const res = await getAllPokemons(pageToRequest);
-            setPokemons([...currentPokemons, ...res.results]);
-            dispatch(addPokemons(res.results));
+            const pokemonsSearched = searchTerm
+                ? pokemonsCached.filter((pokemon) =>
+                      pokemon.name.startsWith(searchTerm)
+                  )
+                : pokemonsCached;
+
+            const offset = (pageToRequest - 1) * limit;
+            const pokemonsToAdd = [];
+
+            // Go through pokemons cache and get details for each pokemon needed
+            for (let index = offset; index < limit * pageToRequest; index++) {
+                const pokemon = pokemonsSearched[index];
+                let pokeDetails = undefined;
+                if (pokemon) {
+                    if (!pokemon.id) {
+                        // If the pokemon has an id, it means it's already loaded!
+                        pokeDetails = await getPokemonById(
+                            getPokemonId(pokemon.url)
+                        );
+                        dispatch(addPokemonDetails(pokeDetails));
+                    }
+                    pokemonsToAdd.push(
+                        pokeDetails ? { ...pokeDetails, ...pokemon } : pokemon
+                    );
+                }
+            }
+
+            setResults([...currentPokemons, ...pokemonsToAdd]);
             setCurrentPage(pageToRequest);
-            pageToRequest == res.count / 20
+            pageToRequest === pokemonsCached.length / limit
                 ? setIsMorePages(false)
                 : setIsMorePages(true);
         } catch (error) {
+            console.error({ error });
             setIsError(true);
-            setPokemons([]);
             setIsMorePages(true);
             setCurrentPage(1);
         }
@@ -57,13 +104,13 @@ export const PokedexScreen = ({ navigation }) => {
     };
 
     const newSearchPokemons = () => {
-        Keyboard.dismiss();
+        //Keyboard.dismiss();
         searchPokemons([], 1);
     };
 
     const loadMorePokemons = () => {
         if (isMorePages) {
-            searchPokemons(pokemons, currentPage + 1);
+            searchPokemons(results, currentPage + 1);
         }
     };
 
@@ -79,14 +126,14 @@ export const PokedexScreen = ({ navigation }) => {
                 <Button
                     title="Rechercher"
                     color={Colors.primary_blue}
-                    onPress={newSearchPokemon}
+                    onPress={newSearchPokemons}
                 />
             </View>
             {isError ? (
                 <DisplayError message="Impossible de récupérer les Pokémons" />
             ) : (
                 <FlatList
-                    data={pokemons}
+                    data={results}
                     keyExtractor={(item) => getPokemonId(item.url)}
                     renderItem={({ item }) => (
                         <PokemonListItem
@@ -97,7 +144,7 @@ export const PokedexScreen = ({ navigation }) => {
                         />
                     )}
                     onEndReached={loadMorePokemons}
-                    onEndReachedThreshold={0.5}
+                    onEndReachedThreshold={0.1}
                     refreshing={isRefreshing}
                     onRefresh={newSearchPokemons}
                 />

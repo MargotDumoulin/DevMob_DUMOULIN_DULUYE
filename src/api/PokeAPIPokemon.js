@@ -49,42 +49,11 @@ const getPokemon = (pokemon, encounter) => {
     };
 };
 
-// export const getAllPokemons = async () => {
-//     const limit = POKE_API_WS_LIMIT;
-//     let idList = [];
-//     let pokemonList = [];
-//     let offset = 0;
-//     let count = -1;
-//     try {
-//         while (count === -1 || offset < count) {
-//             console.log(
-//                 `[GET] : /pokemon (limit : ${limit}, offset : ${offset})`
-//             );
-//             const response = await fetch(
-//                 `${POKE_API_WS_BASE_URL}/pokemon?offset=${offset}&limit=${limit}`
-//             );
-//             const json = await response.json();
-
-//             idList = [
-//                 ...idList,
-//                 ...json.results.map((item) => getPokemonId(item)),
-//             ];
-
-//             count = json.count;
-//             offset += limit;
-//         }
-
-//         for (let id of idList) {
-//             pokemonList = [...pokemonList, await getPokemonById(id)];
-//         }
-
-//         return pokemonList;
-//     } catch (error) {
-//         console.error(error);
-//     }
-// };
-
-export const getAllPokemons = async (page = 1) => {
+export const getPokemonsWithDetails = async (
+    pokemonsCached,
+    addPokemonDetails,
+    page = 1
+) => {
     try {
         const limit = 20;
         const offset = (page - 1) * limit;
@@ -105,7 +74,41 @@ export const getAllPokemons = async (page = 1) => {
 
         return { ...json, results: pokemonsWithDetails };
     } catch (error) {
-        console.log(`Error with function getAllPokemons: ${error.message}`);
+        console.log(
+            `Error with function getPokemonsWithDetails: ${error.message}`
+        );
+        throw error;
+    }
+};
+
+// Used in order to create a cache
+export const getAllPokemons = async (offset = 0) => {
+    try {
+        let limit = 1300;
+        let response = await fetch(
+            `${POKE_API_WS_BASE_URL}/pokemon?limit=${limit}`
+        );
+        let json = await response.json();
+        let pokemonsWithoutDetails = json.results;
+        let isThereAnyMore = json.next;
+
+        while (isThereAnyMore) {
+            offset = limit + offset;
+            limit = json.count;
+            response = await fetch(
+                `${POKE_API_WS_BASE_URL}/pokemon?limit=${limit}&offset=${offset}`
+            );
+            json = await response.json();
+            isThereAnyMore = json.next;
+            pokemonsWithoutDetails = [
+                ...pokemonsWithoutDetails,
+                ...json.results,
+            ];
+        }
+
+        return { ...json, results: pokemonsWithoutDetails };
+    } catch (error) {
+        console.log(`Error with function getCachedPokemons: ${error.message}`);
         throw error;
     }
 };
