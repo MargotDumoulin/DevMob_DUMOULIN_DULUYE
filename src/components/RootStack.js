@@ -4,6 +4,7 @@ import { MapScreen } from "./map/MapScreen";
 import { PokedexScreen } from "./pokedex/PokedexScreen";
 import { Pokemon } from "./pokedex/Pokemon";
 import { CreatePokemonScreen } from "./create/CreatePokemonScreen";
+import { TakePicture } from "./create/TakePicture";
 
 const MapStackNavigator = createStackNavigator();
 const PokedexStackNavigator = createStackNavigator();
@@ -47,6 +48,11 @@ function CreatePokemonStack() {
                 name="CreatePokemonScreen"
                 component={CreatePokemonScreen}
                 options={{ title: "Création" }}
+            />
+            <CreatePokemonStackNavigator.Screen
+                name="TakePicture"
+                component={TakePicture}
+                options={{ title: "Photo" }}
             />
         </CreatePokemonStackNavigator.Navigator>
     );
