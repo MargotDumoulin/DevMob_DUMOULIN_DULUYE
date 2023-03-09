@@ -2,6 +2,7 @@ import {
     POKE_API_WS_BASE_URL,
     POKE_API_WS_LIMIT,
 } from "../config/PokeAPIConfig";
+import {geo32} from "../utils/methods";
 
 const getLocationId = (json) => {
     return json.url.substring(35, json.url.lastIndexOf("/"));
@@ -9,18 +10,19 @@ const getLocationId = (json) => {
 
 const getLocation = (json) => {
     const areaList = json.areas.map((item) => getArea(item));
+    const name =
+        json.names
+            .filter(item => item.language.name === "en")
+            .map((item) => item.name)[0];
+    const coords = geo32(name);
 
     return {
         id: json.id,
-        name: json.names
-            .filter(function (item) {
-                return item.language.name === "en";
-            })
-            .map((item) => item.name)[0],
+        name: name,
         areas: areaList,
         coords: {
-            x: "", // TODO : a randomiser
-            y: "",
+            x: coords.long,
+            y: coords.lat,
         },
     };
 };
@@ -28,6 +30,51 @@ const getArea = (json) => {
     return Number(json.url.substring(40, json.url.lastIndexOf("/")));
 };
 
+export const getAllLocationsLight = async () => {
+    const limit = POKE_API_WS_LIMIT;
+    let idList = [];
+    let locationList = [];
+    let offset = 0;
+    let count = -1;
+    try {
+        while (count === -1 || offset < count) {
+            console.log(
+                `[GET] : /location (limit : ${limit}, offset : ${offset})`
+            );
+            const response = await fetch(
+                `${POKE_API_WS_BASE_URL}/location?offset=${offset}&limit=${limit}`
+            );
+            const json = await response.json();
+
+            idList = [
+                ...idList,
+                ...json.results.map((item) => getLocationId(item)),
+            ];
+
+            count = json.count;
+            offset += limit;
+
+            locationList = [
+                ...locationList,
+                ...json.results.map(location => {
+                    return {
+                        name: location.name.replace(/-/g, " ")
+                            .toLowerCase()
+                            .split(' ')
+                            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' '),
+                        coords: geo32(location.name)
+                    }
+                })
+            ];
+
+        }
+
+        return locationList;
+    } catch (error) {
+        console.error(error);
+    }
+};
 export const getAllLocations = async () => {
     const limit = POKE_API_WS_LIMIT;
     let idList = [];
