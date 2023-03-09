@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import {
     View,
     StyleSheet,
@@ -8,7 +8,7 @@ import {
     Image,
     Button,
 } from "react-native";
-import { useSelector, useDispatch } from "react-redux";
+import {useSelector, useDispatch} from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-root-toast";
 
@@ -16,9 +16,9 @@ import DisplayError from "../DisplayError";
 
 import Colors from "../../definitions/Colors";
 import Assets from "../../definitions/Assets";
-import { capitalize } from "../../utils/methods";
+import {capitalize} from "../../utils/methods";
 
-export const Pokemon = ({ route }) => {
+export const Pokemon = ({route}) => {
     const [isError, setIsError] = useState(false);
     const pokemon = useSelector((state) =>
         state.pokemons.pokemonsCache.find(
@@ -26,6 +26,8 @@ export const Pokemon = ({ route }) => {
         )
     );
     const dispatch = useDispatch();
+
+    console.log(pokemon);
 
     const getImage = () => {
         if (pokemon.image) {
@@ -40,7 +42,7 @@ export const Pokemon = ({ route }) => {
         }
         return (
             <View style={styles.noPoster}>
-                <Image style={styles.image} source={Assets.icons.missingIMG} />
+                <Image style={styles.image} source={Assets.icons.missingIMG}/>
             </View>
         );
     };
@@ -48,7 +50,7 @@ export const Pokemon = ({ route }) => {
     return (
         <View style={styles.container}>
             {isError ? (
-                <DisplayError message="Impossible de récupérer les données du Pokemon" />
+                <DisplayError message="Impossible de récupérer les données du Pokemon"/>
             ) : (
                 <ScrollView style={styles.containerScroll}>
                     <View style={styles.card}>
@@ -58,6 +60,37 @@ export const Pokemon = ({ route }) => {
                                 <Text style={styles.title}>
                                     {capitalize(pokemon.name)}
                                 </Text>
+                            </View>
+                            <View style={styles.containerData}>
+                                <Text>Type : {pokemon.types.map(type => capitalize(type)).join(" - ")}</Text>
+                                <Text>Abilities : {pokemon.abilities.map(type => capitalize(type)).join(" - ")}</Text>
+                                <Text>Height : {pokemon.height} cm</Text>
+                                <Text>Weight : {pokemon.weight} kg</Text>
+                            </View>
+                        </View>
+                    </View>
+                    <View style={styles.card}>
+                        <View style={styles.containerInformation}>
+                            <View style={styles.containerTitle}>
+                                <Text style={styles.title}>Base stats</Text>
+                            </View>
+                            <View style={styles.containerBaseStats}>
+                                <View style={styles.containerData}>
+                                    <Text>HP : {pokemon.baseStats.healthPoint}</Text>
+                                    <Text>ATK : {pokemon.baseStats.attack}</Text>
+                                    <Text>DEF : {pokemon.baseStats.defense}</Text>
+                                    <Text>SP ATK : {pokemon.baseStats.attackSpe}</Text>
+                                    <Text>SP DEF : {pokemon.baseStats.defenseSpe}</Text>
+                                    <Text>SPEED : {pokemon.baseStats.speed}</Text>
+                                </View>
+                                <View style={styles.containerGauge}>
+                                    <Text><Image source={{uri: Assets.image.fullJauge}}/></Text>
+                                    <Text>ATK : {pokemon.baseStats.attack}</Text>
+                                    <Text>DEF : {pokemon.baseStats.defense}</Text>
+                                    <Text>SP ATK : {pokemon.baseStats.attackSpe}</Text>
+                                    <Text>SP DEF : {pokemon.baseStats.defenseSpe}</Text>
+                                    <Text>SPEED : {pokemon.baseStats.speed}</Text>
+                                </View>
                             </View>
                         </View>
                     </View>
@@ -80,6 +113,7 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
         flex: 1,
         borderRadius: 10,
+        marginBottom: 10
     },
     title: {
         fontSize: 20,
@@ -93,10 +127,23 @@ const styles = StyleSheet.create({
     },
     containerTitle: {
         margin: 15,
+        marginBottom: 0
     },
     containerInformation: {
         borderBottomRightRadius: 10,
         borderBottomLeftRadius: 10,
+    },
+    containerData: {
+        margin: 15,
+        flex: 1
+    },
+    containerGauge: {
+        margin: 15,
+        flex: 3,
+        backgroundColor: "yellow"
+    },
+    containerBaseStats: {
+        flexDirection: "row"
     },
     image: {
         width: 250,

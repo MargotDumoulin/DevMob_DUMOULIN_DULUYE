@@ -6,6 +6,7 @@ import Colors from "../../definitions/Colors";
 
 const PokemonListItem = ({ pokemonData, onClick }) => {
     const { name, image } = pokemonData;
+
     const getImage = () => {
         if (image) {
             return (
