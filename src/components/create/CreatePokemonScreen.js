@@ -1,6 +1,16 @@
-import { Text, View, TextInput, Button, StyleSheet, Image } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
+import {
+    Text,
+    View,
+    StyleSheet,
+    Image,
+    Button,
+    ScrollView,
+} from "react-native";
+import { IndexPath, Input, Select, SelectItem } from "@ui-kitten/components";
+import { Divider } from "../general/Divider";
+import Assets from "../../definitions/Assets";
 
 export const CreatePokemonScreen = ({ navigation, route }) => {
     const {
@@ -15,6 +25,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
     });
 
     const [newPokemonImage, setNewPokemonImage] = useState();
+    const [selectedIndex, setSelectedIndex] = useState(new IndexPath(0));
 
     const onSubmit = (data) => {
         console.log(data);
@@ -31,17 +42,19 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
     }, [route?.params?.newPokemonImage]);
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <View style={styles.mainInfoContainer}>
                 <View style={styles.pictureContainer}>
-                    {newPokemonImage && (
-                        <Image
-                            style={styles.image}
-                            source={{
-                                uri: newPokemonImage,
-                            }}
-                        />
-                    )}
+                    <Image
+                        style={styles.image}
+                        source={
+                            newPokemonImage
+                                ? {
+                                      uri: newPokemonImage,
+                                  }
+                                : Assets.icons.missingIMG
+                        }
+                    />
                     <Button title="Ajouter" onPress={navigateToTakePicture} />
                 </View>
                 <View style={styles.mainInfoControllerContainer}>
@@ -51,12 +64,12 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                             required: true,
                         }}
                         render={({ field: { onChange, onBlur, value } }) => (
-                            <TextInput
+                            <Input
                                 style={styles.input}
+                                placeholder="Nom du pokémon"
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 value={value}
-                                placeholder="Pokemon's name"
                             />
                         )}
                         name="name"
@@ -71,24 +84,249 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                         rules={{
                             maxLength: 100,
                         }}
-                        render={({ field: { onChange, onBlur, value } }) => (
-                            <TextInput
+                        render={({ field }) => (
+                            <Select
                                 style={styles.input}
-                                onBlur={onBlur}
-                                onChangeText={onChange}
-                                value={value}
-                                placeholder="Pokemon's type"
-                            />
+                                selectedIndex={selectedIndex}
+                                onSelect={(index) => setSelectedIndex(index)}
+                            >
+                                <SelectItem title="Option 1" />
+                                <SelectItem title="Option 2" />
+                                <SelectItem title="Option 3" />
+                            </Select>
                         )}
-                        name="lastName"
+                        name="type"
+                    />
+                    <Controller
+                        control={control}
+                        rules={{
+                            maxLength: 100,
+                        }}
+                        render={({ field }) => (
+                            <Select
+                                style={styles.input}
+                                selectedIndex={selectedIndex}
+                                onSelect={(index) => setSelectedIndex(index)}
+                            >
+                                <SelectItem title="Option 1" />
+                                <SelectItem title="Option 2" />
+                                <SelectItem title="Option 3" />
+                            </Select>
+                        )}
+                        name="region"
                     />
                 </View>
             </View>
 
-            <View style={styles.pokemonBaseStatsContainer}></View>
+            <Divider text="Base stats" width="90" />
+
+            <View style={styles.pokemonBaseStatsContainer}>
+                <Controller
+                    control={control}
+                    rules={{
+                        maxLength: 100,
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            style={styles.input}
+                            placeholder="HP"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                        />
+                    )}
+                    name="hp"
+                />
+                <Controller
+                    control={control}
+                    rules={{
+                        maxLength: 100,
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            style={styles.input}
+                            placeholder="ATT"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                        />
+                    )}
+                    name="att"
+                />
+                <Controller
+                    control={control}
+                    rules={{
+                        maxLength: 100,
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            style={styles.input}
+                            placeholder="DEF"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                        />
+                    )}
+                    name="def"
+                />
+                <Controller
+                    control={control}
+                    rules={{
+                        maxLength: 100,
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            style={styles.input}
+                            placeholder="SP ATT"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                        />
+                    )}
+                    name="spAtt"
+                />
+                <Controller
+                    control={control}
+                    rules={{
+                        maxLength: 100,
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            style={styles.input}
+                            placeholder="SP DEF"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                        />
+                    )}
+                    name="spDef"
+                />
+                <Controller
+                    control={control}
+                    rules={{
+                        maxLength: 100,
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            style={styles.input}
+                            placeholder="SPEED"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                        />
+                    )}
+                    name="speed"
+                />
+            </View>
+
+            <Divider text="Base Info" width="90" />
+
+            <View style={styles.pokemonBaseStatsContainer}>
+                <Controller
+                    control={control}
+                    rules={{
+                        maxLength: 100,
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            style={styles.input}
+                            placeholder="Height"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                        />
+                    )}
+                    name="height"
+                />
+                <Controller
+                    control={control}
+                    rules={{
+                        maxLength: 100,
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            style={styles.input}
+                            placeholder="Weight"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                        />
+                    )}
+                    name="weight"
+                />
+            </View>
+
+            <Divider text="Base Info" width="90" />
+
+            <View style={styles.pokemonBaseStatsContainer}>
+                <Controller
+                    control={control}
+                    rules={{
+                        maxLength: 100,
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            style={styles.input}
+                            placeholder="Compétence une"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                        />
+                    )}
+                    name="ability_one"
+                />
+                <Controller
+                    control={control}
+                    rules={{
+                        maxLength: 100,
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            style={styles.input}
+                            placeholder="Compétence deux"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                        />
+                    )}
+                    name="ability_two"
+                />
+                <Controller
+                    control={control}
+                    rules={{
+                        maxLength: 100,
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            style={styles.input}
+                            placeholder="Compétence trois"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                        />
+                    )}
+                    name="ability_three"
+                />
+                <Controller
+                    control={control}
+                    rules={{
+                        maxLength: 100,
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            style={styles.input}
+                            placeholder="Compétence quatre"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                        />
+                    )}
+                    name="ability_four"
+                />
+            </View>
 
             <Button title="Valider" onPress={handleSubmit(onSubmit)} />
-        </View>
+        </ScrollView>
     );
 };
 
@@ -97,12 +335,15 @@ const styles = StyleSheet.create({
         flex: 1,
         margin: 10,
     },
-    input: {
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: "bold",
+    },
+    picker: {
         backgroundColor: "white",
-        borderColor: "none",
-        height: 40,
-        padding: 10,
-        borderRadius: 4,
+        borderRadius: 10,
+    },
+    input: {
         marginBottom: 10,
     },
     errorMessage: {
@@ -115,7 +356,17 @@ const styles = StyleSheet.create({
         display: "flex",
         flexDirection: "row",
     },
+    controller: {
+        marginBottom: 10,
+    },
+    divider: {
+        borderBottomColor: "lightgrey",
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        marginTop: 20,
+        marginBottom: 5,
+    },
     mainInfoControllerContainer: {
+        marginTop: 2,
         flex: 1,
         marginLeft: 10,
     },
@@ -144,7 +395,7 @@ const styles = StyleSheet.create({
     image: {
         width: 100,
         height: 100,
-        borderRadius: 100,
+        borderRadius: 10,
         borderWidth: 1,
         marginBottom: 5,
     },
