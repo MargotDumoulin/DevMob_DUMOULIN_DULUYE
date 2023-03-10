@@ -25,7 +25,7 @@ const getArea = (json) => {
 };
 
 const getPokemon = (pokemon, encounter) => {
-    const abilityList = pokemon.abilities.map((item) => item.ability.name);
+    const abilityList = pokemon.types.map((item) => item.type.name);
     const typeList = pokemon.types.map((item) => item.type.name);
     const locationList = encounter.map((item) => getArea(item));
 
@@ -35,7 +35,7 @@ const getPokemon = (pokemon, encounter) => {
         types: typeList,
         image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`,
         locations: locationList,
-        abilities: abilityList,
+        types: abilityList,
         height: pokemon.height,
         weight: pokemon.weight,
         baseStats: {
