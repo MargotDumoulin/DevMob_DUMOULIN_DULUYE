@@ -2,7 +2,15 @@ import {
     POKE_API_WS_BASE_URL,
     POKE_API_WS_LIMIT,
 } from "../config/PokeAPIConfig";
-import {geo32} from "../utils/methods";
+import { geo32 } from "../utils/methods";
+
+export const transformLocationName = (str) =>
+    str
+        .replace(/-/g, " ")
+        .toLowerCase()
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
 
 const getLocationId = (json) => {
     return json.url.substring(35, json.url.lastIndexOf("/"));
@@ -10,10 +18,9 @@ const getLocationId = (json) => {
 
 const getLocation = (json) => {
     const areaList = json.areas.map((item) => getArea(item));
-    const name =
-        json.names
-            .filter(item => item.language.name === "en")
-            .map((item) => item.name)[0];
+    const name = json.names
+        .filter((item) => item.language.name === "en")
+        .map((item) => item.name)[0];
     const coords = geo32(name);
 
     return {
@@ -26,6 +33,7 @@ const getLocation = (json) => {
         },
     };
 };
+
 const getArea = (json) => {
     return Number(json.url.substring(40, json.url.lastIndexOf("/")));
 };
@@ -56,18 +64,14 @@ export const getAllLocationsLight = async () => {
 
             locationList = [
                 ...locationList,
-                ...json.results.map(location => {
+                ...json.results.map((location) => {
                     return {
-                        name: location.name.replace(/-/g, " ")
-                            .toLowerCase()
-                            .split(' ')
-                            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                            .join(' '),
-                        coords: geo32(location.name)
-                    }
-                })
+                        name: transformLocationName(location.name),
+                        coords: geo32(location.name),
+                        id: getLocationId(location),
+                    };
+                }),
             ];
-
         }
 
         return locationList;
@@ -75,6 +79,7 @@ export const getAllLocationsLight = async () => {
         console.error(error);
     }
 };
+
 export const getAllLocations = async () => {
     const limit = POKE_API_WS_LIMIT;
     let idList = [];
