@@ -41,6 +41,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
             locations: [chosenLocation.id],
             image: newPokemonImage,
             name: data.name,
+            isNew: true,
             baseStats: {
                 healthPoint: data.hp,
                 attack: data.att,
