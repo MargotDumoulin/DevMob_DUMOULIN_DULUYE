@@ -2,7 +2,7 @@ import {
     POKE_API_WS_BASE_URL,
     POKE_API_WS_LIMIT,
 } from "../config/PokeAPIConfig";
-import {geo32} from "../utils/methods";
+import {geo32, normalizeName} from "../utils/methods";
 
 const getLocationId = (json) => {
     return json.url.substring(35, json.url.lastIndexOf("/"));
@@ -19,6 +19,7 @@ const getLocation = (json) => {
     return {
         id: json.id,
         name: name,
+        baseName: json.name,
         areas: areaList,
         coords: {
             x: coords.long,
@@ -58,11 +59,7 @@ export const getAllLocationsLight = async () => {
                 ...locationList,
                 ...json.results.map(location => {
                     return {
-                        name: location.name.replace(/-/g, " ")
-                            .toLowerCase()
-                            .split(' ')
-                            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                            .join(' '),
+                        name: normalizeName(location.name),
                         coords: geo32(location.name)
                     }
                 })

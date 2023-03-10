@@ -1,5 +1,13 @@
 export const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
+export const normalizeName = (str) => {
+    return str.replace(/-/g, " ")
+        .toLowerCase()
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
 export const geo32 = (str) => {
     let position;
     let coords = {
@@ -27,8 +35,7 @@ export const geo32 = (str) => {
             coords.long = dichotomicSearch(bit, coords.long);
 
             coords.last = "long";
-        }
-        else if (coords.last === "long") {
+        } else if (coords.last === "long") {
             coords.lat = dichotomicSearch(bit, coords.lat);
 
             coords.last = "lat";
@@ -61,8 +68,7 @@ const dichotomicSearch = (bit, minmax) => {
             min: minmax.min,
             max: center
         };
-    }
-    else if (bit === '1') {
+    } else if (bit === '1') {
         return {
             min: center,
             max: minmax.max

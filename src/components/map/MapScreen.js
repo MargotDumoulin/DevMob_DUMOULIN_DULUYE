@@ -3,8 +3,9 @@ import MapView, {Marker} from "react-native-maps";
 import {getAllLocationsLight} from "../../api/PokeAPILocation";
 import {useEffect, useState} from "react";
 import * as Location from 'expo-location';
+import {geo32} from "../../utils/methods";
 
-export const MapScreen = () => {
+export const MapScreen = ({route}) => {
     const [locations, setLocations] = useState([]);
     const [position, setPosition] = useState();
     const colors = [
@@ -22,6 +23,7 @@ export const MapScreen = () => {
         'navy',
         'plum'
     ];
+    let myLocation = false;
 
     useEffect(() => {
         getLocations();
@@ -32,21 +34,34 @@ export const MapScreen = () => {
         setLocations(await getAllLocationsLight());
     };
     const getPosition = async () => {
-        let {status} = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-            return;
+        if (route && route.params && route.params.location) {
+            let locationPosition;
+
+            locationPosition = geo32(route.params.location);
+            setPosition({
+                latitude: locationPosition.lat,
+                longitude: locationPosition.long,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+            });
         }
+        else {
+            let {status} = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                return;
+            }
 
-        let currentPosition = await Location.getCurrentPositionAsync({});
+            let currentPosition = await Location.getCurrentPositionAsync({});
 
-        console.log(currentPosition);
+            setPosition({
+                latitude: currentPosition.coords.latitude,
+                longitude: currentPosition.coords.longitude,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+            });
 
-        setPosition({
-            latitude: currentPosition.coords.latitude,
-            longitude: currentPosition.coords.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-        });
+            myLocation = true;
+        }
     };
 
     return (
@@ -54,9 +69,11 @@ export const MapScreen = () => {
             {position ? <MapView
                 style={{minHeight: "100%"}}
                 initialRegion={position}>
-                <Marker coordinate={{latitude: position?.latitude, longitude: position?.longitude}}
+                {
+                    myLocation ? <Marker coordinate={{latitude: position?.latitude, longitude: position?.longitude}}
                         pinColor={'plum'}
-                        key={'Wam'}/>
+                        key={'Wam'}/> : ""
+                }
                 {
                     locations.map(location => {
                         return (

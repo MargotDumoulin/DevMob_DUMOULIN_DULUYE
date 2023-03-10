@@ -1,25 +1,39 @@
-import React, {useState} from "react";
-import {Image, ScrollView, StyleSheet, Text, View,} from "react-native";
+import React, {useEffect, useState} from "react";
+import {Image, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import {useDispatch, useSelector} from "react-redux";
 
 import DisplayError from "../DisplayError";
 
 import Colors from "../../definitions/Colors";
 import Assets from "../../definitions/Assets";
-import {capitalize} from "../../utils/methods";
+import {capitalize, normalizeName} from "../../utils/methods";
 import {BaseStatProgressBar} from "../custom/BaseStatProgressBar";
 import {TypeBox} from "../custom/TypeBox";
+import {getLocationById} from "../../api/PokeAPILocation";
 
-export const Pokemon = ({route}) => {
+export const Pokemon = ({navigation, route}) => {
+    const [locations, setLocation] = useState([]);
     const [isError, setIsError] = useState(false);
     const pokemon = useSelector((state) =>
         state.pokemons.pokemonsCache.find(
-            (pokemon) => pokemon.id == route.params.pokemonID
+            (pokemon) => pokemon.id === route.params.pokemonID
         )
     );
-    const dispatch = useDispatch();
+    useDispatch();
 
-    console.log(pokemon);
+    const loadLocations = async () => {
+        if (pokemon.locations.length > 0) {
+            let locationList = [];
+
+            for (let locationId of pokemon.locations) {
+                locationList = [
+                    ...locationList,
+                    await getLocationById(locationId)
+                ];
+            }
+            setLocation(locationList);
+        }
+    }
 
     const getImage = () => {
         if (pokemon.image) {
@@ -38,6 +52,13 @@ export const Pokemon = ({route}) => {
             </View>
         );
     };
+    const navigateMap = (location) => {
+        navigation.navigate("MapScreen", { location });
+    };
+
+    useEffect(() => {
+        loadLocations();
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -55,10 +76,12 @@ export const Pokemon = ({route}) => {
                             </View>
                             <View style={styles.containerData}>
                                 <View style={styles.containerTypes}>
-                                    <TypeBox type={pokemon.types[0]}/>
-                                    {pokemon.types.length > 1 ?
-                                        <TypeBox type={pokemon.types[1]}/> :
-                                        ""
+                                    {
+                                        pokemon.types.map(type => {
+                                            return (
+                                                <TypeBox type={type} key={type}/>
+                                            )
+                                        })
                                     }
                                 </View>
                                 <Text>
@@ -122,6 +145,32 @@ export const Pokemon = ({route}) => {
                             </View>
                         </View>
                     </View>
+                    {locations.length > 0 ?
+                        <View style={styles.card}>
+                            <View style={styles.containerInformation}>
+                                <View style={styles.containerTitle}>
+                                    <Text style={styles.title}>Locations</Text>
+                                </View>
+                                <View style={styles.containerData}>
+                                    {
+                                        locations.map(location => {
+                                            console.log(location);
+                                            return (
+                                                <TouchableOpacity
+                                                    key={location.id}
+                                                    onPress={() => {
+                                                        navigateMap(location.baseName);
+                                                    }}>
+                                                    <Text>{normalizeName(location.baseName)}</Text>
+                                                </TouchableOpacity>
+                                            );
+                                        })
+                                    }
+                                </View>
+                            </View>
+                        </View> :
+                        ""
+                    }
                 </ScrollView>
             )}
         </View>

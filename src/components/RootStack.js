@@ -36,6 +36,11 @@ function PokedexStack() {
                 component={Pokemon}
                 options={{ title: "Pokédex" }}
             />
+            <MapStackNavigator.Screen
+                name="MapScreen"
+                component={MapScreen}
+                options={{ title: "Carte" }}
+            />
         </PokedexStackNavigator.Navigator>
     );
 }
