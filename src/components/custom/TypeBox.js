@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
         color: "white",
         textAlign: "center",
         fontStyle: "normal",
+        fontWeight: "500",
         fontVariant: [
             "small-caps"
         ]

@@ -61,9 +61,18 @@ export const Pokemon = ({route}) => {
                                         ""
                                     }
                                 </View>
-                                <Text>Abilities : {pokemon.abilities.map(type => capitalize(type)).join(" - ")}</Text>
-                                <Text>Height : {pokemon.height} cm</Text>
-                                <Text>Weight : {pokemon.weight} kg</Text>
+                                <Text>
+                                    <Text style={styles.contentTitle}>Abilities : </Text>
+                                    {pokemon.abilities.map(type => capitalize(type)).join(" - ")}
+                                </Text>
+                                <Text>
+                                    <Text style={styles.contentTitle}>Height : </Text>
+                                    {pokemon.height >= 10 ? `${pokemon.height / 10} m` : `${pokemon.height * 10} cm`}
+                                </Text>
+                                <Text>
+                                    <Text style={styles.contentTitle}>Weight : </Text>
+                                    {pokemon.weight >= 10 ? `${pokemon.weight / 10} kg` : `${pokemon.weight * 100} g`}
+                                </Text>
                             </View>
                         </View>
                     </View>
@@ -74,12 +83,30 @@ export const Pokemon = ({route}) => {
                             </View>
                             <View style={styles.containerBaseStats}>
                                 <View style={styles.containerData}>
-                                    <Text>HP : {pokemon.baseStats.healthPoint}</Text>
-                                    <Text>ATK : {pokemon.baseStats.attack}</Text>
-                                    <Text>DEF : {pokemon.baseStats.defense}</Text>
-                                    <Text>SP ATK : {pokemon.baseStats.attackSpe}</Text>
-                                    <Text>SP DEF : {pokemon.baseStats.defenseSpe}</Text>
-                                    <Text>SPEED : {pokemon.baseStats.speed}</Text>
+                                    <Text>
+                                        <Text style={styles.contentTitle}>HP : </Text>
+                                        {pokemon.baseStats.healthPoint}
+                                    </Text>
+                                    <Text>
+                                        <Text style={styles.contentTitle}>ATK : </Text>
+                                        {pokemon.baseStats.attack}
+                                    </Text>
+                                    <Text>
+                                        <Text style={styles.contentTitle}>DEF : </Text>
+                                        {pokemon.baseStats.defense}
+                                    </Text>
+                                    <Text>
+                                        <Text style={styles.contentTitle}>SP ATK : </Text>
+                                        {pokemon.baseStats.attackSpe}
+                                    </Text>
+                                    <Text>
+                                        <Text style={styles.contentTitle}>SP DEF : </Text>
+                                        {pokemon.baseStats.defenseSpe}
+                                    </Text>
+                                    <Text>
+                                        <Text style={styles.contentTitle}>SPEED : </Text>
+                                        {pokemon.baseStats.speed}
+                                    </Text>
                                 </View>
                                 <View style={styles.containerGauge}>
                                     <BaseStatProgressBar stat={pokemon.baseStats.healthPoint}
@@ -157,5 +184,9 @@ const styles = StyleSheet.create({
     },
     progressBar: {
         marginVertical: 6.7
+    },
+    contentTitle: {
+        color: "red",
+        fontWeight: "bold"
     }
 });
