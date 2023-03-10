@@ -72,33 +72,15 @@ function RootStack() {
             <Tab.Screen
                 name="Carte"
                 component={MapStack}
-                options={() => ({
-                    tabBarIcon: () => {
-                        return (
-                            <Image source={Assets.icons.map} style={styles.icon}/>
-                        );
-                    },
-                })}/>
+                options={() => ({tabBarIcon: () => <Image source={Assets.icons.map} style={styles.icon}/>})}/>
             <Tab.Screen
                 name="Pokédex"
                 component={PokedexStack}
-                options={() => ({
-                    tabBarIcon: () => {
-                        return (
-                            <Image source={Assets.icons.pokedex} style={styles.icon}/>
-                        );
-                    },
-                })}/>
+                options={() => ({tabBarIcon: () => <Image source={Assets.icons.pokedex} style={styles.icon}/>})}/>
             <Tab.Screen
                 name="Creation"
                 component={CreatePokemonStack}
-                options={() => ({
-                    tabBarIcon: () => {
-                        return (
-                            <Image source={Assets.icons.add} style={styles.icon}/>
-                        );
-                    },
-                })}/>
+                options={() => ({tabBarIcon: () => <Image source={Assets.icons.add} style={styles.icon}/>})}/>
         </Tab.Navigator>
     );
 }
