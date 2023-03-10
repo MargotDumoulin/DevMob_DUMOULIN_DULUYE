@@ -1,22 +1,14 @@
-import React, {useState, useEffect} from "react";
-import {
-    View,
-    StyleSheet,
-    Text,
-    ActivityIndicator,
-    ScrollView,
-    Image,
-    Button,
-} from "react-native";
-import {useSelector, useDispatch} from "react-redux";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Toast from "react-native-root-toast";
+import React, {useState} from "react";
+import {Image, ScrollView, StyleSheet, Text, View,} from "react-native";
+import {useDispatch, useSelector} from "react-redux";
 
 import DisplayError from "../DisplayError";
 
 import Colors from "../../definitions/Colors";
 import Assets from "../../definitions/Assets";
 import {capitalize} from "../../utils/methods";
+import {BaseStatProgressBar} from "../custom/BaseStatProgressBar";
+import {TypeBox} from "../custom/TypeBox";
 
 export const Pokemon = ({route}) => {
     const [isError, setIsError] = useState(false);
@@ -62,7 +54,13 @@ export const Pokemon = ({route}) => {
                                 </Text>
                             </View>
                             <View style={styles.containerData}>
-                                <Text>Type : {pokemon.types.map(type => capitalize(type)).join(" - ")}</Text>
+                                <View style={styles.containerTypes}>
+                                    <TypeBox type={pokemon.types[0]}/>
+                                    {pokemon.types.length > 1 ?
+                                        <TypeBox type={pokemon.types[1]}/> :
+                                        ""
+                                    }
+                                </View>
                                 <Text>Abilities : {pokemon.abilities.map(type => capitalize(type)).join(" - ")}</Text>
                                 <Text>Height : {pokemon.height} cm</Text>
                                 <Text>Weight : {pokemon.weight} kg</Text>
@@ -84,12 +82,15 @@ export const Pokemon = ({route}) => {
                                     <Text>SPEED : {pokemon.baseStats.speed}</Text>
                                 </View>
                                 <View style={styles.containerGauge}>
-                                    <Text><Image source={{uri: Assets.image.fullJauge}}/></Text>
-                                    <Text>ATK : {pokemon.baseStats.attack}</Text>
-                                    <Text>DEF : {pokemon.baseStats.defense}</Text>
-                                    <Text>SP ATK : {pokemon.baseStats.attackSpe}</Text>
-                                    <Text>SP DEF : {pokemon.baseStats.defenseSpe}</Text>
-                                    <Text>SPEED : {pokemon.baseStats.speed}</Text>
+                                    <BaseStatProgressBar stat={pokemon.baseStats.healthPoint}
+                                                         myStyle={styles.progressBar}/>
+                                    <BaseStatProgressBar stat={pokemon.baseStats.attack} myStyle={styles.progressBar}/>
+                                    <BaseStatProgressBar stat={pokemon.baseStats.defense} myStyle={styles.progressBar}/>
+                                    <BaseStatProgressBar stat={pokemon.baseStats.attackSpe}
+                                                         myStyle={styles.progressBar}/>
+                                    <BaseStatProgressBar stat={pokemon.baseStats.defenseSpe}
+                                                         myStyle={styles.progressBar}/>
+                                    <BaseStatProgressBar stat={pokemon.baseStats.speed} myStyle={styles.progressBar}/>
                                 </View>
                             </View>
                         </View>
@@ -140,10 +141,13 @@ const styles = StyleSheet.create({
     containerGauge: {
         margin: 15,
         flex: 3,
-        backgroundColor: "yellow"
     },
     containerBaseStats: {
         flexDirection: "row"
+    },
+    containerTypes: {
+        flexDirection: "row",
+        marginBottom: 3
     },
     image: {
         width: 250,
@@ -151,4 +155,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 1,
     },
+    progressBar: {
+        marginVertical: 6.7
+    }
 });

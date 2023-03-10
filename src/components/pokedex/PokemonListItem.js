@@ -84,11 +84,6 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         flex: 1,
     },
-    voteAverage: {
-        fontSize: 16,
-        fontWeight: "bold",
-        color: Colors.primary_blue,
-    },
     voteCount: {
         fontSize: 14,
         alignSelf: "flex-end",
