@@ -9,9 +9,7 @@ export const TakePicture = ({ navigation }) => {
 
     const takePicture = async () => {
         try {
-            console.log({ cameraCurrent: camera.current });
             const res = await camera.current.takePictureAsync();
-            console.log({ res });
             navigation.navigate("CreatePokemonScreen", {
                 newPokemonImage: res.uri,
             });
@@ -52,6 +50,10 @@ export const TakePicture = ({ navigation }) => {
                         onPress={toggleCameraType}
                     >
                         <Text style={styles.text}>Flip Camera</Text>
+                        <Text style={styles.text}>
+                            When your picture is taken, please wait a few
+                            seconds before being redirected.
+                        </Text>
                     </TouchableOpacity>
                 </View>
             </Camera>

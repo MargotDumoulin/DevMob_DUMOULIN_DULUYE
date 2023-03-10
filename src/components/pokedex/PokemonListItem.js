@@ -18,8 +18,8 @@ const PokemonListItem = ({ pokemonData, onClick }) => {
             );
         }
         return (
-            <View style={styles.noPoster}>
-                <Image source={Assets.icons.missingIMG} />
+            <View>
+                <Image style={styles.poster} source={Assets.icons.missingIMG} />
             </View>
         );
     };
@@ -71,12 +71,6 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         borderWidth: 1,
         backgroundColor: Colors.white,
-    },
-    noPoster: {
-        width: 120,
-        height: 180,
-        alignItems: "center",
-        justifyContent: "center",
     },
     title: {
         fontSize: 24,

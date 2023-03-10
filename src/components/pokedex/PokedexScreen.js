@@ -71,6 +71,7 @@ export const PokedexScreen = ({ navigation }) => {
                 const pokemon = pokemonsSearched[index];
                 let pokeDetails = undefined;
                 if (pokemon) {
+                    console.log({ pokemonName: pokemon });
                     if (!pokemon.id) {
                         // If the pokemon has an id, it means it's already loaded!
                         pokeDetails = await getPokemonById(
@@ -134,7 +135,9 @@ export const PokedexScreen = ({ navigation }) => {
             ) : (
                 <FlatList
                     data={results}
-                    keyExtractor={(item) => getPokemonId(item.url)}
+                    keyExtractor={(item) =>
+                        item.url ? getPokemonId(item.url) : item.id
+                    }
                     renderItem={({ item }) => (
                         <PokemonListItem
                             pokemonData={item}

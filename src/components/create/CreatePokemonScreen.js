@@ -15,6 +15,8 @@ import { Divider } from "../general/Divider";
 import Assets from "../../definitions/Assets";
 import { getAllLocationsLight } from "../../api/PokeAPILocation";
 import { getAllTypesLight } from "../../api/PokeAPIType";
+import { useDispatch } from "react-redux";
+import { addNewPokemon } from "../../store/reducers/pokemonsSlice";
 
 export const CreatePokemonScreen = ({ navigation, route }) => {
     const {
@@ -22,12 +24,10 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
         handleSubmit,
         formState: { errors },
     } = useForm({
-        defaultValues: {
-            firstName: "",
-            lastName: "",
-        },
+        defaultValues: {},
     });
 
+    const dispatch = useDispatch();
     const [newPokemonImage, setNewPokemonImage] = useState();
     const [loading, setLoading] = useState(true);
     const [locations, setLocations] = useState();
@@ -37,7 +37,36 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
     const [chosenTypeOptional, setChosenTypeOptional] = useState();
 
     const onSubmit = (data) => {
-        console.log(data);
+        const pokemon = {
+            locations: [chosenLocation.id],
+            image: newPokemonImage,
+            name: data.name,
+            baseStats: {
+                healthPoint: data.hp,
+                attack: data.att,
+                defense: data.def,
+                attackSpe: data.spAtt,
+                defenseSpe: data.spDef,
+                speed: data.speed,
+            },
+            height: data.height,
+            weight: data.weight,
+            types: [
+                chosenTypeOne.name.toLowerCase(),
+                ...(chosenTypeOptional
+                    ? [chosenTypeOptional.name.toLowerCase()]
+                    : []),
+            ],
+            abilities: [
+                data.abilityOne.toLowerCase(),
+                ...(data.abilityTwo ? [data.abilityTwo.toLowerCase()] : []),
+                ...(data.abilityThree ? [data.abilityThree.toLowerCase()] : []),
+                ...(data.abilityFour ? [data.abilityFour.toLowerCase()] : []),
+            ],
+        };
+
+        dispatch(addNewPokemon(pokemon));
+        navigation.navigate("Pokédex");
     };
 
     const navigateToTakePicture = () => {
@@ -137,7 +166,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                             rules={{
                                 required: true,
                                 pattern: {
-                                    value: /d+/,
+                                    value: /\d+/,
                                 },
                             }}
                             render={({
@@ -155,7 +184,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                         />
                         {errors.height && (
                             <Text style={styles.errorMessage}>
-                                This is required.
+                                This is required & must be a number.
                             </Text>
                         )}
                         <Controller
@@ -163,7 +192,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                             rules={{
                                 required: true,
                                 pattern: {
-                                    value: /d+/,
+                                    value: /\d+/,
                                 },
                             }}
                             render={({
@@ -181,7 +210,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                         />
                         {errors.weight && (
                             <Text style={styles.errorMessage}>
-                                This is required.
+                                This is required & must be a number.
                             </Text>
                         )}
                     </View>
@@ -230,7 +259,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                             rules={{
                                 required: true,
                                 pattern: {
-                                    value: /d+/,
+                                    value: /\d+/,
                                 },
                             }}
                             render={({
@@ -257,7 +286,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                             rules={{
                                 required: true,
                                 pattern: {
-                                    value: /d+/,
+                                    value: /\d+/,
                                 },
                             }}
                             render={({
@@ -284,7 +313,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                             rules={{
                                 required: true,
                                 pattern: {
-                                    value: /d+/,
+                                    value: /\d+/,
                                 },
                             }}
                             render={({
@@ -311,7 +340,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                             rules={{
                                 required: true,
                                 pattern: {
-                                    value: /d+/,
+                                    value: /\d+/,
                                 },
                             }}
                             render={({
@@ -338,7 +367,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                             rules={{
                                 required: true,
                                 pattern: {
-                                    value: /d+/,
+                                    value: /\d+/,
                                 },
                             }}
                             render={({
@@ -365,7 +394,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                             rules={{
                                 required: true,
                                 pattern: {
-                                    value: /d+/,
+                                    value: /\d+/,
                                 },
                             }}
                             render={({
