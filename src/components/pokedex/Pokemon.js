@@ -99,9 +99,10 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 10,
     },
     image: {
-        width: 250,
+        width: 335,
         height: 250,
-        borderRadius: 10,
+        borderTopRightRadius: 10,
+        borderTopLeftRadius: 10,
         borderWidth: 1,
     },
 });
