@@ -14,12 +14,13 @@ import {getLocationById} from "../../api/PokeAPILocation";
 export const Pokemon = ({navigation, route}) => {
     const [locations, setLocation] = useState([]);
     const [isError, setIsError] = useState(false);
+    const [fav, setFav] = useState(false);
     const pokemon = useSelector((state) =>
         state.pokemons.pokemonsCache.find(
             (pokemon) => pokemon.id === route.params.pokemonID
         )
     );
-    useDispatch();
+    const dispatch = useDispatch();
 
     const loadLocations = async () => {
         if (pokemon.locations.length > 0) {
@@ -31,8 +32,12 @@ export const Pokemon = ({navigation, route}) => {
                     await getLocationById(locationId)
                 ];
             }
+
             setLocation(locationList);
         }
+    }
+    const favs = () => {
+        setFav(!fav);
     }
 
     const getImage = () => {
@@ -53,12 +58,14 @@ export const Pokemon = ({navigation, route}) => {
         );
     };
     const navigateMap = (location) => {
-        navigation.navigate("MapScreen", { location });
+        navigation.navigate("MapScreen", {location});
     };
 
     useEffect(() => {
         loadLocations();
     }, []);
+
+    console.log(pokemon);
 
     return (
         <View style={styles.container}>
@@ -67,7 +74,16 @@ export const Pokemon = ({navigation, route}) => {
             ) : (
                 <ScrollView style={styles.containerScroll}>
                     <View style={styles.card}>
-                        <View style={styles.containerImage}>{getImage()}</View>
+                        <View style={styles.containerImage}>
+                            {getImage()}
+                            <TouchableOpacity style={styles.favIconContainer} onPress={favs}>
+                                {
+                                    fav ?
+                                    <Image source={Assets.icons.fav} style={styles.favIcon}/> :
+                                    <Image source={Assets.icons.favent} style={styles.faventIcon}/>
+                                }
+                            </TouchableOpacity>
+                        </View>
                         <View style={styles.containerInformation}>
                             <View style={styles.containerTitle}>
                                 <Text style={styles.title}>
@@ -131,7 +147,7 @@ export const Pokemon = ({navigation, route}) => {
                                         {pokemon.baseStats.speed}
                                     </Text>
                                 </View>
-                                <View style={styles.containerGauge}>
+                                <View style={styles.containerJauge}>
                                     <BaseStatProgressBar stat={pokemon.baseStats.healthPoint}
                                                          myStyle={styles.progressBar}/>
                                     <BaseStatProgressBar stat={pokemon.baseStats.attack} myStyle={styles.progressBar}/>
@@ -153,18 +169,20 @@ export const Pokemon = ({navigation, route}) => {
                                 </View>
                                 <View style={styles.containerData}>
                                     {
-                                        locations.map(location => {
-                                            console.log(location);
-                                            return (
-                                                <TouchableOpacity
-                                                    key={location.id}
-                                                    onPress={() => {
-                                                        navigateMap(location.baseName);
-                                                    }}>
-                                                    <Text>{normalizeName(location.baseName)}</Text>
-                                                </TouchableOpacity>
-                                            );
-                                        })
+                                        locations.filter(location => location !== undefined)
+                                            .map(location => {
+                                                return (
+                                                    <TouchableOpacity
+                                                        key={location.id}
+                                                        onPress={() => {
+                                                            navigateMap(location.baseName);
+                                                        }}
+                                                        style={styles.containerLocation}>
+                                                        <Image source={Assets.icons.goToMap} style={styles.mapIcon}/>
+                                                        <Text>{normalizeName(location.baseName)}</Text>
+                                                    </TouchableOpacity>
+                                                );
+                                            })
                                     }
                                 </View>
                             </View>
@@ -200,7 +218,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: Colors.darkGrey,
         borderTopRightRadius: 10,
-        borderTopLeftRadius: 10,
+        borderTopLeftRadius: 10
     },
     containerTitle: {
         margin: 15,
@@ -214,7 +232,7 @@ const styles = StyleSheet.create({
         margin: 15,
         flex: 1
     },
-    containerGauge: {
+    containerJauge: {
         margin: 15,
         flex: 3,
     },
@@ -237,5 +255,28 @@ const styles = StyleSheet.create({
     contentTitle: {
         color: "red",
         fontWeight: "bold"
+    },
+    containerLocation: {
+        flexDirection: "row",
+        marginVertical: 2
+    },
+    mapIcon: {
+        height: 16,
+        width: 16,
+        marginRight: 5
+    },
+    favIconContainer: {
+        position: "absolute",
+        top: 16,
+        right: 16
+    },
+    favIcon: {
+        height: 32,
+        width: 32,
+        tintColor: "red"
+    },
+    faventIcon: {
+        height: 32,
+        width: 32
     }
 });
