@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {View, TextInput, Button, StyleSheet, FlatList, Switch, ScrollView} from "react-native";
+import {View, TextInput, StyleSheet, FlatList, Switch, Text, Image, TouchableOpacity} from "react-native";
 import {
     getPokemonId,
     getPokemonById,
@@ -15,6 +15,7 @@ import {
 } from "../../store/reducers/pokemonsSlice";
 import PokemonTileItem from "./PokemonTileItem";
 import { FlatGrid } from 'react-native-super-grid';
+import Assets from "../../definitions/Assets";
 
 const limit = 20;
 
@@ -129,27 +130,28 @@ export const PokedexScreen = ({navigation}) => {
                     onChangeText={(text) => setSearchTerm(text)}
                     onSubmitEditing={newSearchPokemon}
                 />
-                <Button
-                    title="Rechercher"
-                    color={Colors.primary_blue}
-                    onPress={newSearchPokemons}
-                />
+                <TouchableOpacity onPress={newSearchPokemons}>
+                    <Image source={Assets.icons.search} style={styles.iconSearch}/>
+                </TouchableOpacity>
+            </View>
+            <View style={styles.containerDisplay}>
+                <Text style={styles.textDisplay}>List</Text>
                 <Switch
-                    trackColor={{false: '#767577', true: '#81b0ff'}}
-                    thumbColor={isTiles ? '#f5dd4b' : 'red'}
+                    trackColor={{true: '#0891B2', false: '#C9C9C9'}}
+                    thumbColor={"white"}
                     onValueChange={toggleSwitch}
                     value={isTiles}
                 />
+                <Text style={styles.textDisplay}>Tile</Text>
             </View>
             {isError ?
                 <DisplayError message="Impossible de récupérer les Pokémons"/> :
                 isTiles ?
                     <FlatGrid
-                        itemDimension={130}
-                        data={results}
-                        // staticDimension={300}
-                        // fixed
+                        itemDimension={80}
                         spacing={10}
+                        data={results}
+                        keyExtractor={(item) => getPokemonId(item.url)}
                         renderItem={({ item }) => (
                             <PokemonTileItem
                                 key={item.id}
@@ -159,6 +161,10 @@ export const PokedexScreen = ({navigation}) => {
                                 }}
                             />
                         )}
+                        onEndReached={loadMorePokemons}
+                        onEndReachedThreshold={0.1}
+                        refreshing={isRefreshing}
+                        onRefresh={newSearchPokemons}
                     /> :
                     <FlatList
                         data={results}
@@ -189,9 +195,23 @@ const styles = StyleSheet.create({
         marginTop: 16,
     },
     searchContainer: {
+        flexDirection: "row",
         marginBottom: 16,
+        backgroundColor: "lightgrey"
+    },
+    containerDisplay: {
+        flexDirection: "row",
+        justifyContent: "flex-end"
+    },
+    textDisplay: {
+        marginVertical: 14
     },
     inputSearchTerm: {
         marginBottom: 16,
     },
+    iconSearch: {
+        width: 32,
+        height: 32,
+        tintColor: Colors.primary_blue
+    }
 });
