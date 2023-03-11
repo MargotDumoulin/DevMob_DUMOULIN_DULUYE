@@ -1,27 +1,21 @@
 import { useEffect, useState } from "react";
-import { View, TextInput, Button, StyleSheet, FlatList } from "react-native";
-import {
-    getPokemonId,
-    getPokemonById,
-    getAllPokemons,
-} from "../../api/PokeAPIPokemon";
+import { View, TextInput, TouchableOpacity, StyleSheet, FlatList, Image, Text, Switch } from "react-native";
+import { getPokemonId, getPokemonById, getAllPokemons } from "../../api/PokeAPIPokemon";
 import Colors from "../../definitions/Colors";
 import DisplayError from "../DisplayError";
 import PokemonListItem from "./PokemonListItem";
 import {useDispatch, useSelector} from "react-redux";
-import {
-    addPokemonsCache,
-    addPokemonDetails,
-} from "../../store/reducers/pokemonsSlice";
+import { addPokemonsCache, addPokemonDetails } from "../../store/reducers/pokemonsSlice";
 import PokemonTileItem from "./PokemonTileItem";
 import { FlatGrid } from 'react-native-super-grid';
 import Assets from "../../definitions/Assets";
+import ModalSelector from "react-native-modal-selector-searchable";
 
 const limit = 20;
 
 export const PokedexScreen = ({navigation}) => {
     // const [pokemons, setPokemons] = useState([]);
-    const [filter, setFilter] = useState("");
+    const [filter, setFilter] = useState({key:'4', value:'All'});
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [results, setResults] = useState([]);
@@ -131,15 +125,32 @@ export const PokedexScreen = ({navigation}) => {
     return (
         <View style={styles.container}>
             <View style={styles.searchContainer}>
+                <TouchableOpacity onPress={newSearchPokemons}>
+                    <Image source={Assets.icons.search} style={styles.iconSearch}/>
+                </TouchableOpacity>
                 <TextInput
                     placeholder="Pokémon à chercher"
                     style={styles.inputSearchTerm}
                     onChangeText={(text) => setSearchTerm(text)}
                     onSubmitEditing={newSearchPokemon}
                 />
-                <TouchableOpacity onPress={newSearchPokemons}>
-                    <Image source={Assets.icons.search} style={styles.iconSearch}/>
-                </TouchableOpacity>
+                <ModalSelector
+                    data={filters}
+                    keyExtractor={(item) => item.key}
+                    labelExtractor={(item) => item.value}
+                    onChange={(newFilter) => {
+                        setFilter(newFilter);
+                    }}
+                    search={false}
+                    style={styles.filterSelector}
+                >
+                    <TextInput
+                        editable={false}
+                        placeholder={"Bonjour"}
+                        value={filter.value}
+                        style={styles.inputSelector}
+                    />
+                </ModalSelector>
             </View>
             <View style={styles.containerDisplay}>
                 <Text style={styles.textDisplay}>List</Text>
@@ -203,8 +214,7 @@ const styles = StyleSheet.create({
     },
     searchContainer: {
         flexDirection: "row",
-        marginBottom: 16,
-        backgroundColor: "lightgrey"
+        marginBottom: 16
     },
     containerDisplay: {
         flexDirection: "row",
@@ -214,11 +224,31 @@ const styles = StyleSheet.create({
         marginVertical: 14
     },
     inputSearchTerm: {
-        marginBottom: 16,
+        flex: 2,
+        borderWidth: 1,
+        backgroundColor: "#F5F5F5",
+        borderColor: "#e8e8e8",
+        color: "#868686",
+        borderRadius: 4,
+        paddingHorizontal: 10,
+        marginRight: 5
     },
     iconSearch: {
         width: 32,
         height: 32,
-        tintColor: Colors.primary_blue
+        tintColor: Colors.primary_blue,
+        marginTop: 4
+    },
+    filterSelector: {
+        flex: 1
+    },
+    inputSelector: {
+        borderWidth: 1,
+        backgroundColor: "#F5F5F5",
+        borderColor: "#e8e8e8",
+        color: "#868686",
+        padding: 10,
+        height: 40,
+        borderRadius: 4
     }
 });
