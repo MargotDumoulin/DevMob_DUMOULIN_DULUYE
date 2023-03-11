@@ -64,7 +64,8 @@ function RootStack() {
     return (
         <Tab.Navigator
             screenOptions={{
-                tabBarActiveTintColor: Colors.primary_blue,
+                tabBarActiveTintColor: "red",
+                tabBarInactiveTintColor: Colors.primary_blue,
                 headerShown: false
         }}
             initialRouteName="Pokédex"
@@ -72,15 +73,15 @@ function RootStack() {
             <Tab.Screen
                 name="Carte"
                 component={MapStack}
-                options={() => ({tabBarIcon: () => <Image source={Assets.icons.map} style={styles.icon}/>})}/>
+                options={() => ({tabBarIcon: ({focused}) => <Image source={Assets.icons.map} style={focused ? styles.iconFocused : styles.icon}/>})}/>
             <Tab.Screen
                 name="Pokédex"
                 component={PokedexStack}
-                options={() => ({tabBarIcon: () => <Image source={Assets.icons.pokedex} style={styles.icon}/>})}/>
+                options={() => ({tabBarIcon: ({focused}) => <Image source={Assets.icons.pokedex} style={focused ? styles.iconFocused : styles.icon}/>})}/>
             <Tab.Screen
                 name="Creation"
                 component={CreatePokemonStack}
-                options={() => ({tabBarIcon: () => <Image source={Assets.icons.add} style={styles.icon}/>})}/>
+                options={() => ({tabBarIcon: ({focused}) => <Image source={Assets.icons.add} style={focused ? styles.iconFocused : styles.icon}/>})}/>
         </Tab.Navigator>
     );
 }
@@ -89,7 +90,13 @@ export default RootStack;
 
 const styles = StyleSheet.create({
     icon: {
-        height: 32,
-        width: 32
+        height: 28,
+        width: 28,
+        tintColor: Colors.primary_blue
+    },
+    iconFocused: {
+        height: 28,
+        width: 28,
+        tintColor: "red"
     }
 });
