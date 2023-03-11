@@ -237,7 +237,8 @@ const styles = StyleSheet.create({
         width: 32,
         height: 32,
         tintColor: Colors.primary_blue,
-        marginTop: 4
+        marginTop: 4,
+        marginRight: 7
     },
     filterSelector: {
         flex: 1
