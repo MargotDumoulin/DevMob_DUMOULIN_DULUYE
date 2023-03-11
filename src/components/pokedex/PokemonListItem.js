@@ -3,9 +3,10 @@ import { View, StyleSheet, Image, Text, TouchableOpacity } from "react-native";
 
 import Assets from "../../definitions/Assets";
 import Colors from "../../definitions/Colors";
+import {TypeBox} from "../custom/TypeBox";
 
 const PokemonListItem = ({ pokemonData, onClick }) => {
-    const { name, image } = pokemonData;
+    const { name, image, types } = pokemonData;
 
     const getImage = () => {
         if (image) {
@@ -34,9 +35,13 @@ const PokemonListItem = ({ pokemonData, onClick }) => {
                         {name.charAt(0).toUpperCase() + name.slice(1)}
                     </Text>
                 </View>
-                <Text style={styles.overview} numberOfLines={4}>
-                    Infos...
-                </Text>
+                <View style={styles.containerTypes}>
+                    {types.map((type) => {
+                        return (
+                            <TypeBox type={type} key={type} />
+                        );
+                    })}
+                </View>
             </View>
         </TouchableOpacity>
     );
@@ -54,17 +59,12 @@ const styles = StyleSheet.create({
         marginLeft: 12,
         marginTop: 8,
     },
-    statsContainer: {
-        flexDirection: "row",
-        marginTop: 12,
-    },
     titleContainer: {
         flexDirection: "row",
     },
-    statContainer: {
+    containerTypes: {
         flexDirection: "row",
-        alignItems: "center",
-        marginRight: 16,
+        marginVertical: 5,
     },
     poster: {
         width: 80,
@@ -77,26 +77,5 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: "bold",
         flex: 1,
-    },
-    voteCount: {
-        fontSize: 14,
-        alignSelf: "flex-end",
-        fontStyle: "italic",
-    },
-    overview: {
-        fontSize: 16,
-    },
-    icon: {
-        tintColor: Colors.primary_blue,
-        width: 20,
-        height: 20,
-        marginRight: 4,
-    },
-    highlight: {
-        tintColor: Colors.primary_blue,
-        width: 20,
-        height: 20,
-        marginHorizontal: 4,
-        marginTop: 6,
-    },
+    }
 });
