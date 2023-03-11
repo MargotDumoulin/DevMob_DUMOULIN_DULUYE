@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { View, TextInput, Button, StyleSheet, FlatList } from "react-native";
+import {useEffect, useState} from "react";
+import {View, TextInput, Button, StyleSheet, FlatList, Switch, ScrollView} from "react-native";
 import {
     getPokemonId,
     getPokemonById,
@@ -8,15 +8,17 @@ import {
 import Colors from "../../definitions/Colors";
 import DisplayError from "../DisplayError";
 import PokemonListItem from "./PokemonListItem";
-import { useDispatch, useSelector } from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {
     addPokemonsCache,
     addPokemonDetails,
 } from "../../store/reducers/pokemonsSlice";
+import PokemonTileItem from "./PokemonTileItem";
+import { FlatGrid } from 'react-native-super-grid';
 
 const limit = 20;
 
-export const PokedexScreen = ({ navigation }) => {
+export const PokedexScreen = ({navigation}) => {
     // const [pokemons, setPokemons] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -25,12 +27,16 @@ export const PokedexScreen = ({ navigation }) => {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isError, setIsError] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
+    const [isTiles, setIsTiles] = useState(false);
 
     const pokemonsCached = useSelector((state) => state.pokemons.pokemonsCache);
 
     const dispatch = useDispatch();
 
-    const newSearchPokemon = () => {};
+    const toggleSwitch = () => setIsTiles(previousState => !previousState);
+
+    const newSearchPokemon = () => {
+    };
 
     useEffect(() => {
         cachePokemons();
@@ -39,7 +45,7 @@ export const PokedexScreen = ({ navigation }) => {
     useEffect(() => {
         // Once cache is setup, we can initiate the search
         if (pokemonsCached.length > 0 && !isMounted) {
-            console.log({ pokemonsCachedTaille: pokemonsCached.length });
+            console.log({pokemonsCachedTaille: pokemonsCached.length});
             searchPokemons([], 1);
             setIsMounted(true);
         }
@@ -49,7 +55,7 @@ export const PokedexScreen = ({ navigation }) => {
         // Setup cache
         const res = await getAllPokemons();
         dispatch(addPokemonsCache(res.results));
-        console.log({ resTaille: res.results.length });
+        console.log({resTaille: res.results.length});
     };
 
     const searchPokemons = async (currentPokemons, pageToRequest) => {
@@ -59,8 +65,8 @@ export const PokedexScreen = ({ navigation }) => {
         try {
             const pokemonsSearched = searchTerm
                 ? pokemonsCached.filter((pokemon) =>
-                      pokemon.name.startsWith(searchTerm)
-                  )
+                    pokemon.name.startsWith(searchTerm)
+                )
                 : pokemonsCached;
 
             const offset = (pageToRequest - 1) * limit;
@@ -79,7 +85,7 @@ export const PokedexScreen = ({ navigation }) => {
                         dispatch(addPokemonDetails(pokeDetails));
                     }
                     pokemonsToAdd.push(
-                        pokeDetails ? { ...pokeDetails, ...pokemon } : pokemon
+                        pokeDetails ? {...pokeDetails, ...pokemon} : pokemon
                     );
                 }
             }
@@ -90,7 +96,7 @@ export const PokedexScreen = ({ navigation }) => {
                 ? setIsMorePages(false)
                 : setIsMorePages(true);
         } catch (error) {
-            console.error({ error });
+            console.error({error});
             setIsError(true);
             setIsMorePages(true);
             setCurrentPage(1);
@@ -100,7 +106,7 @@ export const PokedexScreen = ({ navigation }) => {
     };
 
     const navigatePokemonDetails = (pokemonID) => {
-        navigation.navigate("ViewPokemon", { pokemonID });
+        navigation.navigate("ViewPokemon", {pokemonID});
     };
 
     const newSearchPokemons = () => {
@@ -128,27 +134,50 @@ export const PokedexScreen = ({ navigation }) => {
                     color={Colors.primary_blue}
                     onPress={newSearchPokemons}
                 />
-            </View>
-            {isError ? (
-                <DisplayError message="Impossible de récupérer les Pokémons" />
-            ) : (
-                <FlatList
-                    data={results}
-                    keyExtractor={(item) => getPokemonId(item.url)}
-                    renderItem={({ item }) => (
-                        <PokemonListItem
-                            pokemonData={item}
-                            onClick={() => {
-                                navigatePokemonDetails(item.id);
-                            }}
-                        />
-                    )}
-                    onEndReached={loadMorePokemons}
-                    onEndReachedThreshold={0.1}
-                    refreshing={isRefreshing}
-                    onRefresh={newSearchPokemons}
+                <Switch
+                    trackColor={{false: '#767577', true: '#81b0ff'}}
+                    thumbColor={isTiles ? '#f5dd4b' : 'red'}
+                    onValueChange={toggleSwitch}
+                    value={isTiles}
                 />
-            )}
+            </View>
+            {isError ?
+                <DisplayError message="Impossible de récupérer les Pokémons"/> :
+                isTiles ?
+                    <FlatGrid
+                        itemDimension={130}
+                        data={results}
+                        // staticDimension={300}
+                        // fixed
+                        spacing={10}
+                        renderItem={({ item }) => (
+                            <PokemonTileItem
+                                key={item.id}
+                                pokemonData={item}
+                                onClick={() => {
+                                    navigatePokemonDetails(item.id);
+                                }}
+                            />
+                        )}
+                    /> :
+                    <FlatList
+                        data={results}
+                        keyExtractor={(item) => getPokemonId(item.url)}
+                        renderItem={({item}) => (
+                            <PokemonListItem
+                                pokemonData={item}
+                                onClick={() => {
+                                    navigatePokemonDetails(item.id);
+                                }}
+                            />
+                        )}
+                        onEndReached={loadMorePokemons}
+                        onEndReachedThreshold={0.1}
+                        refreshing={isRefreshing}
+                        onRefresh={newSearchPokemons}
+                    />
+
+            }
         </View>
     );
 };
