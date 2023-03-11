@@ -1,6 +1,5 @@
-import {useEffect, useState} from "react";
-import React from "react";
-import {View, TextInput, StyleSheet, FlatList, Switch, Text, Image, TouchableOpacity} from "react-native";
+import { useEffect, useState } from "react";
+import { View, TextInput, Button, StyleSheet, FlatList } from "react-native";
 import {
     getPokemonId,
     getPokemonById,
@@ -22,7 +21,7 @@ const limit = 20;
 
 export const PokedexScreen = ({navigation}) => {
     // const [pokemons, setPokemons] = useState([]);
-    const [filter, setFilter] = React.useState("");
+    const [filter, setFilter] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [results, setResults] = useState([]);
@@ -94,7 +93,7 @@ export const PokedexScreen = ({navigation}) => {
                         dispatch(addPokemonDetails(pokeDetails));
                     }
                     pokemonsToAdd.push(
-                        pokeDetails ? {...pokeDetails, ...pokemon} : pokemon
+                        pokeDetails ? { ...pokeDetails, ...pokemon } : pokemon
                     );
                 }
             }

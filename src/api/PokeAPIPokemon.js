@@ -25,7 +25,7 @@ const getArea = (json) => {
 };
 
 const getPokemon = (pokemon, encounter) => {
-    const abilityList = pokemon.abilities.map((item) => item.ability.name);
+    const abilityList = pokemon.types.map((item) => item.type.name);
     const typeList = pokemon.types.map((item) => item.type.name);
     const locationList = encounter.map((item) => getArea(item));
 
