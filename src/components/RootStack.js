@@ -1,12 +1,13 @@
-import {createStackNavigator} from "@react-navigation/stack";
-import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
-import {MapScreen} from "./map/MapScreen";
-import {PokedexScreen} from "./pokedex/PokedexScreen";
-import {Pokemon} from "./pokedex/Pokemon";
-import {CreatePokemonScreen} from "./create/CreatePokemonScreen";
-import Assets from "../definitions/Assets";
-import {Image, StyleSheet} from "react-native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { MapScreen } from "./map/MapScreen";
+import { PokedexScreen } from "./pokedex/PokedexScreen";
+import { Pokemon } from "./pokedex/Pokemon";
+import { CreatePokemonScreen } from "./create/CreatePokemonScreen";
+import { TakePicture } from "./create/TakePicture";
 import Colors from "../definitions/Colors";
+import {Image, StyleSheet} from "react-native";
+import Assets from "../definitions/Assets";
 
 const MapStackNavigator = createStackNavigator();
 const PokedexStackNavigator = createStackNavigator();
@@ -55,6 +56,11 @@ function CreatePokemonStack() {
                 name="CreatePokemonScreen"
                 component={CreatePokemonScreen}
                 options={{title: "Création"}}
+            />
+            <CreatePokemonStackNavigator.Screen
+                name="TakePicture"
+                component={TakePicture}
+                options={{ title: "Photo" }}
             />
         </CreatePokemonStackNavigator.Navigator>
     );

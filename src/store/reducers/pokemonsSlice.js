@@ -30,8 +30,15 @@ const pokemonsSlice = createSlice({
             };
             state.pokemonsCache = pokemonsCacheCopy;
         },
+        addNewPokemon(state, action) {
+            state.pokemonsCache.push({
+                id: state.pokemonsCache.length,
+                ...action.payload,
+            });
+        },
     },
 });
 
-export const { addPokemonsCache, addPokemonDetails } = pokemonsSlice.actions;
+export const { addPokemonsCache, addPokemonDetails, addNewPokemon } =
+    pokemonsSlice.actions;
 export default pokemonsSlice.reducer;
