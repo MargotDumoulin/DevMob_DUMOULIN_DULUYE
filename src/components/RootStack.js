@@ -1,9 +1,12 @@
-import { createStackNavigator } from "@react-navigation/stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { MapScreen } from "./map/MapScreen";
-import { PokedexScreen } from "./pokedex/PokedexScreen";
-import { Pokemon } from "./pokedex/Pokemon";
-import { CreatePokemonScreen } from "./create/CreatePokemonScreen";
+import {createStackNavigator} from "@react-navigation/stack";
+import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
+import {MapScreen} from "./map/MapScreen";
+import {PokedexScreen} from "./pokedex/PokedexScreen";
+import {Pokemon} from "./pokedex/Pokemon";
+import {CreatePokemonScreen} from "./create/CreatePokemonScreen";
+import Assets from "../definitions/Assets";
+import {Image, StyleSheet} from "react-native";
+import Colors from "../definitions/Colors";
 
 const MapStackNavigator = createStackNavigator();
 const PokedexStackNavigator = createStackNavigator();
@@ -17,7 +20,7 @@ function MapStack() {
             <MapStackNavigator.Screen
                 name="MapScreen"
                 component={MapScreen}
-                options={{ title: "Carte" }}
+                options={{title: "Carte"}}
             />
         </MapStackNavigator.Navigator>
     );
@@ -29,12 +32,17 @@ function PokedexStack() {
             <PokedexStackNavigator.Screen
                 name="PokedexScreen"
                 component={PokedexScreen}
-                options={{ title: "Pokédex" }}
+                options={{title: "Pokédex"}}
             />
             <PokedexStackNavigator.Screen
                 name="ViewPokemon"
                 component={Pokemon}
-                options={{ title: "Pokédex" }}
+                options={{title: "Pokédex"}}
+            />
+            <MapStackNavigator.Screen
+                name="MapScreen"
+                component={MapScreen}
+                options={{title: "Carte"}}
             />
         </PokedexStackNavigator.Navigator>
     );
@@ -46,7 +54,7 @@ function CreatePokemonStack() {
             <CreatePokemonStackNavigator.Screen
                 name="CreatePokemonScreen"
                 component={CreatePokemonScreen}
-                options={{ title: "Création" }}
+                options={{title: "Création"}}
             />
         </CreatePokemonStackNavigator.Navigator>
     );
@@ -55,14 +63,40 @@ function CreatePokemonStack() {
 function RootStack() {
     return (
         <Tab.Navigator
-            screenOptions={{ headerShown: false }}
+            screenOptions={{
+                tabBarActiveTintColor: "red",
+                tabBarInactiveTintColor: Colors.primary_blue,
+                headerShown: false
+        }}
             initialRouteName="Pokédex"
         >
-            <Tab.Screen name="Carte" component={MapStack} />
-            <Tab.Screen name="Pokédex" component={PokedexStack} />
-            <Tab.Screen name="Creation" component={CreatePokemonStack} />
+            <Tab.Screen
+                name="Carte"
+                component={MapStack}
+                options={() => ({tabBarIcon: ({focused}) => <Image source={Assets.icons.map} style={focused ? styles.iconFocused : styles.icon}/>})}/>
+            <Tab.Screen
+                name="Pokédex"
+                component={PokedexStack}
+                options={() => ({tabBarIcon: ({focused}) => <Image source={Assets.icons.pokedex} style={focused ? styles.iconFocused : styles.icon}/>})}/>
+            <Tab.Screen
+                name="Creation"
+                component={CreatePokemonStack}
+                options={() => ({tabBarIcon: ({focused}) => <Image source={Assets.icons.add} style={focused ? styles.iconFocused : styles.icon}/>})}/>
         </Tab.Navigator>
     );
 }
 
 export default RootStack;
+
+const styles = StyleSheet.create({
+    icon: {
+        height: 28,
+        width: 28,
+        tintColor: Colors.primary_blue
+    },
+    iconFocused: {
+        height: 28,
+        width: 28,
+        tintColor: "red"
+    }
+});
