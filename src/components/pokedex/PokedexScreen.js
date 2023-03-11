@@ -159,6 +159,7 @@ export const PokedexScreen = ({navigation}) => {
                     thumbColor={"white"}
                     onValueChange={toggleSwitch}
                     value={isTiles}
+                    style={styles.switchDisplay}
                 />
                 <Text style={styles.textDisplay}>Tile</Text>
             </View>
@@ -213,15 +214,18 @@ const styles = StyleSheet.create({
         marginTop: 16,
     },
     searchContainer: {
-        flexDirection: "row",
-        marginBottom: 16
+        flexDirection: "row"
     },
     containerDisplay: {
         flexDirection: "row",
         justifyContent: "flex-end"
     },
     textDisplay: {
-        marginVertical: 14
+        marginVertical: 9.5
+    },
+    switchDisplay: {
+        height: 40,
+        marginLeft: 5
     },
     inputSearchTerm: {
         flex: 2,
