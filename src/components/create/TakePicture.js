@@ -67,14 +67,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
     },
-    input: {
-        backgroundColor: "white",
-        borderColor: "none",
-        height: 40,
-        padding: 10,
-        borderRadius: 4,
-        marginBottom: 10,
-    },
     camera: {
         flex: 1,
     },
