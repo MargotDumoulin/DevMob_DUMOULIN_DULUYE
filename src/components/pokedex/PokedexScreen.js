@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import React from "react";
 import {View, TextInput, StyleSheet, FlatList, Switch, Text, Image, TouchableOpacity} from "react-native";
 import {
     getPokemonId,
@@ -21,6 +22,7 @@ const limit = 20;
 
 export const PokedexScreen = ({navigation}) => {
     // const [pokemons, setPokemons] = useState([]);
+    const [filter, setFilter] = React.useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [results, setResults] = useState([]);
@@ -29,6 +31,12 @@ export const PokedexScreen = ({navigation}) => {
     const [isError, setIsError] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
     const [isTiles, setIsTiles] = useState(false);
+    const filters = [
+        {key:'1', value:'New'},
+        {key:'2', value:'Original'},
+        {key:'3', value:'Favorites'},
+        {key:'4', value:'All'},
+    ]
 
     const pokemonsCached = useSelector((state) => state.pokemons.pokemonsCache);
 
