@@ -48,19 +48,25 @@ export const MapScreen = ({route}) => {
         else {
             let {status} = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
-                return;
+                setPosition({
+                    latitude: 0,
+                    longitude: 0,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421,
+                });
             }
+            else {
+                let currentPosition = await Location.getCurrentPositionAsync({});
 
-            let currentPosition = await Location.getCurrentPositionAsync({});
+                setPosition({
+                    latitude: currentPosition.coords.latitude,
+                    longitude: currentPosition.coords.longitude,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421,
+                });
 
-            setPosition({
-                latitude: currentPosition.coords.latitude,
-                longitude: currentPosition.coords.longitude,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-            });
-
-            myLocation = true;
+                myLocation = true;
+            }
         }
     };
 
