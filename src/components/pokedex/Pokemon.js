@@ -17,11 +17,17 @@ import {capitalize, transformName} from "../../utils/methods";
 import {BaseStatProgressBar} from "../custom/BaseStatProgressBar";
 import {TypeBox} from "../custom/TypeBox";
 import {getLocationById} from "../../api/PokeAPILocation";
+import {addPokemonFav, removePokemonFav} from "../../store/reducers/pokemonsSlice";
 
 export const Pokemon = ({navigation, route}) => {
     const [locations, setLocation] = useState([]);
     const [isError, setIsError] = useState(false);
-    const [fav, setFav] = useState(false);
+    const [fav, setFav] =
+        useState(
+            useSelector((state) =>
+                state.pokemons.pokemonsFav.includes(route.params.pokemonID)
+            )
+        );
     const pokemon = useSelector((state) =>
         state.pokemons.pokemonsCache.find(
             (pokemon) => pokemon.id === route.params.pokemonID
@@ -46,6 +52,11 @@ export const Pokemon = ({navigation, route}) => {
     };
 
     const favs = () => {
+        if (fav) {
+            dispatch(removePokemonFav(pokemon.id));
+        } else {
+            dispatch(addPokemonFav(pokemon.id));
+        }
         setFav(!fav);
     };
     const updatePokemon = () => {

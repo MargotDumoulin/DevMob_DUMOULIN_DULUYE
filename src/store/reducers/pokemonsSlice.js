@@ -5,6 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const initialState = {
     pokemonsCache: [],
+    pokemonsFav: []
 };
 
 const pokemonsSlice = createSlice({
@@ -36,9 +37,15 @@ const pokemonsSlice = createSlice({
                 ...action.payload,
             });
         },
-    },
+        addPokemonFav(state, action) {
+            state.pokemonsFav.push(action.payload)
+        },
+        removePokemonFav(state, action) {
+            state.pokemonsFav = state.pokemonsFav.filter(pokemonId => pokemonId !== action.payload);
+        }
+    }
 });
 
-export const { addPokemonsCache, addPokemonDetails, addNewPokemon } =
+export const { addPokemonsCache, addPokemonDetails, addNewPokemon, addPokemonFav, removePokemonFav } =
     pokemonsSlice.actions;
 export default pokemonsSlice.reducer;
