@@ -6,7 +6,7 @@ import Colors from "../../definitions/Colors";
 import {TypeBox} from "../custom/TypeBox";
 
 const PokemonListItem = ({ pokemonData, onClick }) => {
-    const { name, image, types } = pokemonData;
+    const { name, image, types, isNew } = pokemonData;
 
     const getImage = () => {
         if (image) {
@@ -34,6 +34,10 @@ const PokemonListItem = ({ pokemonData, onClick }) => {
                     <Text style={styles.title}>
                         {name.charAt(0).toUpperCase() + name.slice(1)}
                     </Text>
+                    {isNew ?
+                        <Text style={styles.new}>NEW</Text> :
+                        ""
+                    }
                 </View>
                 <View style={styles.containerTypes}>
                     {types.map((type) => {
@@ -52,30 +56,38 @@ export default PokemonListItem;
 const styles = StyleSheet.create({
     container: {
         flexDirection: "row",
-        paddingVertical: 8,
+        paddingVertical: 8
     },
     informationContainer: {
         flex: 1,
         marginLeft: 12,
-        marginTop: 8,
+        marginTop: 8
     },
     titleContainer: {
         flexDirection: "row",
     },
     containerTypes: {
         flexDirection: "row",
-        marginVertical: 5,
+        marginVertical: 5
     },
     poster: {
         width: 80,
         height: 80,
         borderRadius: 100,
         borderWidth: 1,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.white
     },
     title: {
         fontSize: 24,
         fontWeight: "bold",
-        flex: 1,
+        flex: 1
+    },
+    new: {
+        color: Colors.white,
+        backgroundColor: Colors.greenNew,
+        marginTop: 3,
+        paddingTop: 5,
+        paddingHorizontal: 10,
+        borderRadius: 4
     }
 });

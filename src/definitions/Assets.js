@@ -8,6 +8,8 @@ import icon_goToMap from "../../assets/goToMap.png";
 import icon_map from "../../assets/map.png";
 import icon_pokedex from "../../assets/pokedex.png";
 import icon_add from "../../assets/add.png";
+import icon_bin from "../../assets/bin.png"
+import icon_update from "../../assets/update.png";
 
 const Assets = {
     icons: {
@@ -20,7 +22,9 @@ const Assets = {
         goToMap: icon_goToMap,
         map: icon_map,
         pokedex: icon_pokedex,
-        add: icon_add
+        add: icon_add,
+        bin: icon_bin,
+        update: icon_update
     }
 };
 

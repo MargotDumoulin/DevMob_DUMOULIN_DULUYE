@@ -2,6 +2,7 @@ const Colors = {
     primary_blue: "#003482",
     white: "white",
     darkGrey: "#d1d1d1",
+    greenNew: "#16A34A",
     progressBar: {
         unfilledColor: "#F5F5F5",
         blue: "#00A8CC",

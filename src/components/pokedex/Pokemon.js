@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import {
     Image,
     ScrollView,
@@ -7,18 +7,18 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 
 import DisplayError from "../DisplayError";
 
 import Colors from "../../definitions/Colors";
 import Assets from "../../definitions/Assets";
-import { capitalize, transformName } from "../../utils/methods";
-import { BaseStatProgressBar } from "../custom/BaseStatProgressBar";
-import { TypeBox } from "../custom/TypeBox";
-import { getLocationById } from "../../api/PokeAPILocation";
+import {capitalize, transformName} from "../../utils/methods";
+import {BaseStatProgressBar} from "../custom/BaseStatProgressBar";
+import {TypeBox} from "../custom/TypeBox";
+import {getLocationById} from "../../api/PokeAPILocation";
 
-export const Pokemon = ({ navigation, route }) => {
+export const Pokemon = ({navigation, route}) => {
     const [locations, setLocation] = useState([]);
     const [isError, setIsError] = useState(false);
     const [fav, setFav] = useState(false);
@@ -48,6 +48,12 @@ export const Pokemon = ({ navigation, route }) => {
     const favs = () => {
         setFav(!fav);
     };
+    const updatePokemon = () => {
+        console.log("Update");
+    }
+    const removePokemon = () => {
+        console.log("Remove");
+    }
 
     const getImage = () => {
         if (pokemon.image) {
@@ -62,25 +68,23 @@ export const Pokemon = ({ navigation, route }) => {
         }
         return (
             <View style={styles.noPoster}>
-                <Image style={styles.image} source={Assets.icons.missingIMG} />
+                <Image style={styles.image} source={Assets.icons.missingIMG}/>
             </View>
         );
     };
 
     const navigateMap = (location) => {
-        navigation.navigate("MapScreen", { location });
+        navigation.navigate("MapScreen", {location});
     };
 
     useEffect(() => {
         loadLocations();
     }, []);
 
-    console.log(pokemon);
-
     return (
         <View style={styles.container}>
             {isError ? (
-                <DisplayError message="Impossible de récupérer les données du Pokemon" />
+                <DisplayError message="Impossible de récupérer les données du Pokemon"/>
             ) : (
                 <ScrollView style={styles.containerScroll}>
                     <View style={styles.card}>
@@ -108,12 +112,22 @@ export const Pokemon = ({ navigation, route }) => {
                                 <Text style={styles.title}>
                                     {capitalize(pokemon.name)}
                                 </Text>
+                                {pokemon?.isNew ?
+                                    <View style={styles.containerNew}>
+                                        <TouchableOpacity onPress={updatePokemon}>
+                                            <Image source={Assets.icons.update} style={styles.updateIcon}/>
+                                        </TouchableOpacity>
+                                        <View></View>
+                                        <Text style={styles.new}>NEW</Text>
+                                    </View> :
+                                    ""
+                                }
                             </View>
                             <View style={styles.containerData}>
                                 <View style={styles.containerTypes}>
                                     {pokemon.types.map((type) => {
                                         return (
-                                            <TypeBox type={type} key={type} />
+                                            <TypeBox type={type} key={type}/>
                                         );
                                     })}
                                 </View>
@@ -217,8 +231,8 @@ export const Pokemon = ({ navigation, route }) => {
                             </View>
                         </View>
                     </View>
-                    {locations.length > 0 ? (
-                        <View style={styles.card}>
+                    {locations.length > 0 ?
+                        <View style={pokemon?.isNew ? styles.card : [styles.card, styles.lastCard]}>
                             <View style={styles.containerInformation}>
                                 <View style={styles.containerTitle}>
                                     <Text style={styles.title}>Locations</Text>
@@ -257,10 +271,17 @@ export const Pokemon = ({ navigation, route }) => {
                                         })}
                                 </View>
                             </View>
-                        </View>
-                    ) : (
+                        </View> :
                         ""
-                    )}
+                    }
+                    {pokemon?.isNew ?
+                        <View style={styles.containerBin}>
+                            <TouchableOpacity onPress={removePokemon}>
+                                <Image source={Assets.icons.bin} style={styles.binIcon}/>
+                            </TouchableOpacity>
+                        </View> :
+                        ""
+                    }
                 </ScrollView>
             )}
         </View>
@@ -280,7 +301,13 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
         flex: 1,
         borderRadius: 10,
-        marginBottom: 10,
+        marginBottom: 10
+    },
+    lastCard: {
+        backgroundColor: "white",
+        flex: 1,
+        borderRadius: 10,
+        marginBottom: 25,
     },
     title: {
         fontSize: 20,
@@ -295,6 +322,7 @@ const styles = StyleSheet.create({
     containerTitle: {
         margin: 15,
         marginBottom: 0,
+        flexDirection: "row"
     },
     containerInformation: {
         borderBottomRightRadius: 10,
@@ -346,10 +374,38 @@ const styles = StyleSheet.create({
     favIcon: {
         height: 32,
         width: 32,
-        tintColor: "red",
+        tintColor: "red"
     },
     faventIcon: {
         height: 32,
-        width: 32,
+        width: 32
     },
+    new: {
+        color: Colors.white,
+        backgroundColor: Colors.greenNew,
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 4
+    },
+    binIcon: {
+        height: 32,
+        width: 32,
+        marginRight: 3
+    },
+    updateIcon: {
+        height: 24,
+        width: 24,
+        marginTop: 4
+    },
+    containerBin: {
+        flexDirection: "row",
+        justifyContent: "flex-end",
+        marginBottom: 25
+    },
+    containerNew: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        flex: 1,
+        marginLeft: 10
+    }
 });
