@@ -304,10 +304,7 @@ const styles = StyleSheet.create({
         marginBottom: 10
     },
     lastCard: {
-        backgroundColor: "white",
-        flex: 1,
-        borderRadius: 10,
-        marginBottom: 25,
+        marginBottom: 25
     },
     title: {
         fontSize: 20,
