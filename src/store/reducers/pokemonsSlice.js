@@ -32,8 +32,21 @@ const pokemonsSlice = createSlice({
             state.pokemonsCache = pokemonsCacheCopy;
         },
         addNewPokemon(state, action) {
+            let id;
+
+            if (!state.pokemonsCache[state.pokemonsCache.length - 1]?.id) {
+                id = state.pokemonsCache.length + 1;
+            }
+            else {
+                id = Math.max(
+                    state.pokemonsCache
+                        .map(pokemon => pokemon.id)
+                        .filter(pokemonId => pokemonId !== undefined && pokemonId !== null)
+                ) + 1;
+            }
+
             state.pokemonsCache.push({
-                id: state.pokemonsCache.length,
+                id: id,
                 ...action.payload,
             });
         },
