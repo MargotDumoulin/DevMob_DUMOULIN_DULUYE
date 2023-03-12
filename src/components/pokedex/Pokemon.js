@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {
-    Image,
-    ScrollView,
+    Alert,
+    Image, ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -17,7 +17,7 @@ import {capitalize, transformName} from "../../utils/methods";
 import {BaseStatProgressBar} from "../custom/BaseStatProgressBar";
 import {TypeBox} from "../custom/TypeBox";
 import {getLocationById} from "../../api/PokeAPILocation";
-import {addPokemonFav, removePokemonFav} from "../../store/reducers/pokemonsSlice";
+import {removeNewPokemon, addPokemonFav, removePokemonFav} from "../../store/reducers/pokemonsSlice";
 
 export const Pokemon = ({navigation, route}) => {
     const [locations, setLocation] = useState([]);
@@ -63,7 +63,20 @@ export const Pokemon = ({navigation, route}) => {
         console.log("Update");
     }
     const removePokemon = () => {
-        console.log("Remove");
+        Alert.alert('Suppression', `Do you want to remove ${pokemon.name} ?`, [
+            {
+                text: 'Cancel',
+                style: 'cancel',
+            },
+            {
+                text: 'Remove',
+                onPress: async () => {
+                    await setIsError(true);
+                    dispatch(removeNewPokemon(pokemon.id));
+                    navigation.navigate("PokedexScreen");
+                }
+            },
+        ]);
     }
 
     const getImage = () => {
@@ -125,10 +138,14 @@ export const Pokemon = ({navigation, route}) => {
                                 </Text>
                                 {pokemon?.isNew ?
                                     <View style={styles.containerNew}>
-                                        <TouchableOpacity onPress={updatePokemon}>
-                                            <Image source={Assets.icons.update} style={styles.updateIcon}/>
-                                        </TouchableOpacity>
-                                        <View></View>
+                                        <View style={styles.containerControls}>
+                                            <TouchableOpacity onPress={updatePokemon}>
+                                                <Image source={Assets.icons.update} style={styles.controlIcon}/>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={removePokemon}>
+                                                <Image source={Assets.icons.bin} style={styles.controlIcon}/>
+                                            </TouchableOpacity>
+                                        </View>
                                         <Text style={styles.new}>NEW</Text>
                                     </View> :
                                     ""
@@ -243,7 +260,7 @@ export const Pokemon = ({navigation, route}) => {
                         </View>
                     </View>
                     {locations.length > 0 ?
-                        <View style={pokemon?.isNew ? styles.card : [styles.card, styles.lastCard]}>
+                        <View style={[styles.card, styles.lastCard]}>
                             <View style={styles.containerInformation}>
                                 <View style={styles.containerTitle}>
                                     <Text style={styles.title}>Locations</Text>
@@ -282,14 +299,6 @@ export const Pokemon = ({navigation, route}) => {
                                         })}
                                 </View>
                             </View>
-                        </View> :
-                        ""
-                    }
-                    {pokemon?.isNew ?
-                        <View style={styles.containerBin}>
-                            <TouchableOpacity onPress={removePokemon}>
-                                <Image source={Assets.icons.bin} style={styles.binIcon}/>
-                            </TouchableOpacity>
                         </View> :
                         ""
                     }
@@ -395,17 +404,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         borderRadius: 4
     },
-    binIcon: {
-        height: 32,
-        width: 32,
-        marginRight: 3
-    },
-    updateIcon: {
+    controlIcon: {
         height: 24,
         width: 24,
-        marginTop: 4
+        marginTop: 4,
+        marginRight: 7
     },
-    containerBin: {
+    containerControls: {
         flexDirection: "row",
         justifyContent: "flex-end",
         marginBottom: 25
@@ -414,6 +419,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         flex: 1,
-        marginLeft: 10
+        marginLeft: 10,
+        height: 32
     }
 });

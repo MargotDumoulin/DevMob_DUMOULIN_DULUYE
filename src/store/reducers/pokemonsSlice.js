@@ -50,6 +50,9 @@ const pokemonsSlice = createSlice({
                 ...action.payload,
             });
         },
+        removeNewPokemon(state, action) {
+            state.pokemonsCache = state.pokemonsCache.filter(pokemon => pokemon.id !== action.payload);
+        },
         addPokemonFav(state, action) {
             state.pokemonsFav.push(action.payload)
         },
@@ -59,6 +62,6 @@ const pokemonsSlice = createSlice({
     }
 });
 
-export const { addPokemonsCache, addPokemonDetails, addNewPokemon, addPokemonFav, removePokemonFav } =
+export const { addPokemonsCache, addPokemonDetails, addNewPokemon, removeNewPokemon, addPokemonFav, removePokemonFav } =
     pokemonsSlice.actions;
 export default pokemonsSlice.reducer;
