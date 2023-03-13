@@ -38,12 +38,17 @@ function PokedexStack() {
             <PokedexStackNavigator.Screen
                 name="ViewPokemon"
                 component={Pokemon}
-                options={{title: "Pokédex"}}
+                options={{title: "Pokémon"}}
             />
             <PokedexStackNavigator.Screen
                 name="MapScreen"
                 component={MapScreen}
                 options={{title: "Carte"}}
+            />
+            <CreatePokemonStackNavigator.Screen
+                name="CreatePokemonScreen"
+                component={CreatePokemonScreen}
+                options={{title: "Création"}}
             />
         </PokedexStackNavigator.Navigator>
     );
