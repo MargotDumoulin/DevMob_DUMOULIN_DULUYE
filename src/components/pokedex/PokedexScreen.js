@@ -309,10 +309,10 @@ const styles = StyleSheet.create({
         marginRight: 5,
     },
     iconSearch: {
-        width: 32,
-        height: 32,
+        width: 24,
+        height: 24,
         tintColor: Colors.primary_blue,
-        marginTop: 4,
+        marginTop: 8,
         marginRight: 7,
     },
     filterSelector: {
