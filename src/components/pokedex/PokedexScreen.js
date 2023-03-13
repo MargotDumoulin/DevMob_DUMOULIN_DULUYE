@@ -20,6 +20,7 @@ import DisplayError from "../DisplayError";
 import PokemonListItem from "./PokemonListItem";
 import { useDispatch, useSelector } from "react-redux";
 import {
+    addNewPokemon,
     addPokemonsCache,
     exportNewPokemon,
     updatePokemon,
@@ -28,6 +29,8 @@ import PokemonTileItem from "./PokemonTileItem";
 import { FlatGrid } from "react-native-super-grid";
 import Assets from "../../definitions/Assets";
 import ModalSelector from "react-native-modal-selector-searchable";
+import * as FileSystem from "expo-file-system";
+import * as DocumentPicker from "expo-document-picker";
 
 const limit = 20;
 
@@ -145,6 +148,19 @@ export const PokedexScreen = ({ navigation, route }) => {
         }
     };
 
+    const importNewPokemon = () => {
+        DocumentPicker.getDocumentAsync().then(file => {
+            FileSystem.readAsStringAsync(file.uri).then((content) => {
+                    content = JSON.parse(content);
+
+                    content.forEach((pokemon) => {
+                        dispatch(addNewPokemon(pokemon));
+                    });
+                }
+            );
+        });
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.searchContainer}>
@@ -192,6 +208,10 @@ export const PokedexScreen = ({ navigation, route }) => {
             <Button
                 title={"Export"}
                 onPress={() => dispatch(exportNewPokemon())}
+            />
+            <Button
+                title={"Import"}
+                onPress={importNewPokemon}
             />
             {isError ? (
                 <DisplayError message="Impossible de récupérer les Pokémons" />
