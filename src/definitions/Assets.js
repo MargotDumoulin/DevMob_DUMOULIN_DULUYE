@@ -10,6 +10,8 @@ import icon_pokedex from "../../assets/pokedex.png";
 import icon_add from "../../assets/add.png";
 import icon_bin from "../../assets/bin.png"
 import icon_update from "../../assets/update.png";
+import icon_export from "../../assets/export.png";
+import icon_import from "../../assets/import.png";
 
 const Assets = {
     icons: {
@@ -24,7 +26,9 @@ const Assets = {
         pokedex: icon_pokedex,
         add: icon_add,
         bin: icon_bin,
-        update: icon_update
+        update: icon_update,
+        export: icon_export,
+        import: icon_import
     }
 };
 

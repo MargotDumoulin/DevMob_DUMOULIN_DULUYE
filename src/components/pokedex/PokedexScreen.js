@@ -8,7 +8,6 @@ import {
     Image,
     Text,
     Switch,
-    Button,
 } from "react-native";
 import {
     getPokemonId,
@@ -148,7 +147,10 @@ export const PokedexScreen = ({ navigation, route }) => {
         }
     };
 
-    const importNewPokemon = () => {
+    const exportCustomPokemon = () => {
+        dispatch(exportNewPokemon());
+    }
+    const importCustomPokemon = () => {
         DocumentPicker.getDocumentAsync().then(file => {
             FileSystem.readAsStringAsync(file.uri).then((content) => {
                     content = JSON.parse(content);
@@ -194,25 +196,33 @@ export const PokedexScreen = ({ navigation, route }) => {
                     />
                 </ModalSelector>
             </View>
-            <View style={styles.containerDisplay}>
-                <Text style={styles.textDisplay}>List</Text>
-                <Switch
-                    trackColor={{ true: "#0891B2", false: "#C9C9C9" }}
-                    thumbColor={"white"}
-                    onValueChange={toggleSwitch}
-                    value={isTiles}
-                    style={styles.switchDisplay}
-                />
-                <Text style={styles.textDisplay}>Tile</Text>
+            <View style={styles.containerControls}>
+                <View style={styles.containerImportExport}>
+                    <TouchableOpacity onPress={exportCustomPokemon}>
+                        <Image
+                            source={Assets.icons.export}
+                            style={styles.iconSearch}
+                        />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={importCustomPokemon}>
+                        <Image
+                            source={Assets.icons.import}
+                            style={styles.iconSearch}
+                        />
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.containerDisplay}>
+                    <Text style={styles.textDisplay}>List</Text>
+                    <Switch
+                        trackColor={{ true: "#0891B2", false: "#C9C9C9" }}
+                        thumbColor={"white"}
+                        onValueChange={toggleSwitch}
+                        value={isTiles}
+                        style={styles.switchDisplay}
+                    />
+                    <Text style={styles.textDisplay}>Tile</Text>
+                </View>
             </View>
-            <Button
-                title={"Export"}
-                onPress={() => dispatch(exportNewPokemon())}
-            />
-            <Button
-                title={"Import"}
-                onPress={importNewPokemon}
-            />
             {isError ? (
                 <DisplayError message="Impossible de récupérer les Pokémons" />
             ) : isTiles ? (
@@ -273,6 +283,13 @@ const styles = StyleSheet.create({
     containerDisplay: {
         flexDirection: "row",
         justifyContent: "flex-end",
+    },
+    containerControls: {
+        flexDirection: "row",
+        justifyContent: "space-between"
+    },
+    containerImportExport: {
+        flexDirection: "row"
     },
     textDisplay: {
         marginVertical: 9.5,
