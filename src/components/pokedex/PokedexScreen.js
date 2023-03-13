@@ -8,6 +8,7 @@ import {
     Image,
     Text,
     Switch,
+    Button,
 } from "react-native";
 import {
     getPokemonId,
@@ -20,6 +21,7 @@ import PokemonListItem from "./PokemonListItem";
 import { useDispatch, useSelector } from "react-redux";
 import {
     addPokemonsCache,
+    exportNewPokemon,
     updatePokemon,
 } from "../../store/reducers/pokemonsSlice";
 import PokemonTileItem from "./PokemonTileItem";
@@ -187,6 +189,10 @@ export const PokedexScreen = ({ navigation, route }) => {
                 />
                 <Text style={styles.textDisplay}>Tile</Text>
             </View>
+            <Button
+                title={"Export"}
+                onPress={() => dispatch(exportNewPokemon())}
+            />
             {isError ? (
                 <DisplayError message="Impossible de récupérer les Pokémons" />
             ) : isTiles ? (

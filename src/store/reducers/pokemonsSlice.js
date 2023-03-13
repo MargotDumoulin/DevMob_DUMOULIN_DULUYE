@@ -1,7 +1,10 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { cloneDeep } from "lodash";
-import { getPokemonId } from "../../api/PokeAPIPokemon";
+import {createSlice} from "@reduxjs/toolkit";
+import {cloneDeep} from "lodash";
+import {getPokemonId} from "../../api/PokeAPIPokemon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as FileSystem from 'expo-file-system';
+import * as Permissions from 'expo-permissions';
+import * as MediaLibrary from 'expo-media-library';
 
 const initialState = {
     pokemonsCache: [],
@@ -52,6 +55,25 @@ const pokemonsSlice = createSlice({
                 (pokemon) => pokemon.id !== action.payload
             );
         },
+        exportNewPokemon(state, action) {
+            console.log("Export");
+
+            Permissions.askAsync(Permissions.MEDIA_LIBRARY).then(permissions => {
+                if (permissions.status === "granted") {
+                    let fileUri = FileSystem.documentDirectory + "text.txt";
+
+                    console.log(`File URI : ${fileUri}`);
+
+                    FileSystem.writeAsStringAsync(fileUri, "Hello World", {encoding: FileSystem.EncodingType.UTF8}).then(r => {
+                        MediaLibrary.createAssetAsync(fileUri).then(asset => {
+                            MediaLibrary.createAlbumAsync("Download", asset, false).then(r => {
+                                console.log(r);
+                            })
+                        })
+                    });
+                }
+            });
+        },
         addPokemonFav(state, action) {
             state.pokemonsFav.push(action.payload);
         },
@@ -68,6 +90,7 @@ export const {
     updatePokemon,
     addNewPokemon,
     removeNewPokemon,
+    exportNewPokemon,
     addPokemonFav,
     removePokemonFav,
 } = pokemonsSlice.actions;
