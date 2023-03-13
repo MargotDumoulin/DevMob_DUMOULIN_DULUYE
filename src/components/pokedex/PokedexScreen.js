@@ -32,9 +32,15 @@ import * as FileSystem from "expo-file-system";
 import * as DocumentPicker from "expo-document-picker";
 
 const limit = 20;
+const filters = [
+    { key: "1", value: "New" },
+    { key: "2", value: "Original" },
+    { key: "3", value: "Favorites" },
+    { key: "4", value: "All" },
+];
 
 export const PokedexScreen = ({ navigation, route }) => {
-    const [filter, setFilter] = useState({ key: "4", value: "All" });
+    const [filter, setFilter] = useState(filters[3]);
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [results, setResults] = useState([]);
@@ -43,19 +49,13 @@ export const PokedexScreen = ({ navigation, route }) => {
     const [isError, setIsError] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
     const [isTiles, setIsTiles] = useState(false);
-    const filters = [
-        { key: "1", value: "New" },
-        { key: "2", value: "Original" },
-        { key: "3", value: "Favorites" },
-        { key: "4", value: "All" },
-    ];
 
     const pokemonsCached = useSelector((state) => state.pokemons.pokemonsCache);
-
+    const idsOfFavedPokemons = useSelector(
+        (state) => state.pokemons.pokemonsFav
+    );
     const dispatch = useDispatch();
-
     const toggleSwitch = () => setIsTiles((previousState) => !previousState);
-
     const newSearchPokemon = () => {};
 
     useEffect(() => {
@@ -65,6 +65,9 @@ export const PokedexScreen = ({ navigation, route }) => {
     useEffect(() => {
         if (route?.params?.refreshResults) {
             searchPokemons([], 1);
+            navigation.setParams({
+                refreshResults: false,
+            });
         }
     }, [route?.params?.refreshResults]);
 
@@ -83,18 +86,39 @@ export const PokedexScreen = ({ navigation, route }) => {
         console.log({ resTaille: res.results.length });
     };
 
+    const getFilterByDropdownCondition = (pokemon) => {
+        switch (filter.key) {
+            case filters[0].key:
+                return pokemon.isNew;
+            case filters[1].key:
+                return !pokemon.isNew;
+            case filters[2].key:
+                return idsOfFavedPokemons.includes(
+                    pokemon.id || getPokemonId(pokemon.url)
+                );
+            case filters[3].key:
+                return true;
+            default:
+                return true;
+        }
+    };
+
     const searchPokemons = async (currentPokemons, pageToRequest) => {
         setIsRefreshing(true);
         setIsError(false);
 
         try {
             const pokemonsSearched = searchTerm
-                ? pokemonsCached.filter((pokemon) =>
-                      pokemon.name
-                          .toLowerCase()
-                          .startsWith(searchTerm.toLowerCase())
+                ? pokemonsCached.filter(
+                      (pokemon) =>
+                          pokemon.name
+                              .toLowerCase()
+                              .startsWith(searchTerm.toLowerCase()) &&
+                          getFilterByDropdownCondition(pokemon)
                   )
-                : pokemonsCached;
+                : pokemonsCached.filter((pokemon) =>
+                      getFilterByDropdownCondition(pokemon)
+                  );
 
             const offset = (pageToRequest - 1) * limit;
             const pokemonsToAdd = [];
@@ -149,19 +173,18 @@ export const PokedexScreen = ({ navigation, route }) => {
 
     const exportCustomPokemon = () => {
         dispatch(exportNewPokemon());
-    }
+    };
     const importCustomPokemon = () => {
-        DocumentPicker.getDocumentAsync().then(file => {
+        DocumentPicker.getDocumentAsync().then((file) => {
             FileSystem.readAsStringAsync(file.uri).then((content) => {
-                    content = JSON.parse(content);
+                content = JSON.parse(content);
 
-                    content.forEach((pokemon) => {
-                        dispatch(addNewPokemon(pokemon));
-                    });
-                }
-            );
+                content.forEach((pokemon) => {
+                    dispatch(addNewPokemon(pokemon));
+                });
+            });
         });
-    }
+    };
 
     return (
         <View style={styles.container}>
@@ -286,10 +309,10 @@ const styles = StyleSheet.create({
     },
     containerControls: {
         flexDirection: "row",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
     },
     containerImportExport: {
-        flexDirection: "row"
+        flexDirection: "row",
     },
     textDisplay: {
         marginVertical: 9.5,
