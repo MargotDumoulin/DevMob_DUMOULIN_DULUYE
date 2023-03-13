@@ -32,6 +32,7 @@ export const Pokemon = ({ navigation, route }) => {
             state.pokemons.pokemonsFav.includes(route.params.pokemonID)
         )
     );
+
     const pokemon = useSelector((state) =>
         state.pokemons.pokemonsCache.find(
             (pokemon) => pokemon.id === route.params.pokemonID
@@ -63,11 +64,15 @@ export const Pokemon = ({ navigation, route }) => {
         }
         setFav(!fav);
     };
+
     const updatePokemon = () => {
-        console.log("Update");
+        navigation.navigate("CreatePokemonScreen", {
+            pokemonID: route.params.pokemonID,
+        });
     };
+
     const removePokemon = () => {
-        Alert.alert("Suppression", `Do you want to remove ${pokemon.name} ?`, [
+        Alert.alert("Delete", `Do you want to remove ${pokemon.name} ?`, [
             {
                 text: "Cancel",
                 style: "cancel",
@@ -109,12 +114,12 @@ export const Pokemon = ({ navigation, route }) => {
 
     useEffect(() => {
         loadLocations();
-    }, []);
+    }, [pokemon]);
 
     return (
         <View style={styles.container}>
             {isError ? (
-                <DisplayError message="Impossible de récupérer les données du Pokemon" />
+                <DisplayError message="Can't get Pokemon's data" />
             ) : (
                 <ScrollView style={styles.containerScroll}>
                     <View style={styles.card}>

@@ -5,7 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const initialState = {
     pokemonsCache: [],
-    pokemonsFav: []
+    pokemonsFav: [],
 };
 
 const pokemonsSlice = createSlice({
@@ -18,11 +18,14 @@ const pokemonsSlice = createSlice({
                 state.pokemonsCache = action.payload;
             }
         },
-        addPokemonDetails(state, action) {
+        updatePokemon(state, action) {
             const pokemonToUpdate = action.payload;
             const pokemonsCacheCopy = cloneDeep(state.pokemonsCache);
             const index = pokemonsCacheCopy.findIndex((poke) => {
-                return Number(getPokemonId(poke.url)) === pokemonToUpdate.id;
+                return (
+                    Number(poke.url ? getPokemonId(poke.url) : poke.id) ===
+                    pokemonToUpdate.id
+                );
             });
 
             pokemonsCacheCopy[index] = {
@@ -32,36 +35,40 @@ const pokemonsSlice = createSlice({
             state.pokemonsCache = pokemonsCacheCopy;
         },
         addNewPokemon(state, action) {
-            let id;
-
-            if (!state.pokemonsCache[state.pokemonsCache.length - 1]?.id) {
-                id = state.pokemonsCache.length + 1;
-            }
-            else {
-                id = Math.max(
-                    state.pokemonsCache
-                        .map(pokemon => pokemon.id)
-                        .filter(pokemonId => pokemonId !== undefined && pokemonId !== null)
+            const id =
+                Math.max(
+                    ...state.pokemonsCache.map((pokemon) =>
+                        Number(pokemon?.id || getPokemonId(pokemon.url))
+                    )
                 ) + 1;
-            }
 
             state.pokemonsCache.push({
-                id: id,
+                id,
                 ...action.payload,
             });
         },
         removeNewPokemon(state, action) {
-            state.pokemonsCache = state.pokemonsCache.filter(pokemon => pokemon.id !== action.payload);
+            state.pokemonsCache = state.pokemonsCache.filter(
+                (pokemon) => pokemon.id !== action.payload
+            );
         },
         addPokemonFav(state, action) {
-            state.pokemonsFav.push(action.payload)
+            state.pokemonsFav.push(action.payload);
         },
         removePokemonFav(state, action) {
-            state.pokemonsFav = state.pokemonsFav.filter(pokemonId => pokemonId !== action.payload);
-        }
-    }
+            state.pokemonsFav = state.pokemonsFav.filter(
+                (pokemonId) => pokemonId !== action.payload
+            );
+        },
+    },
 });
 
-export const { addPokemonsCache, addPokemonDetails, addNewPokemon, removeNewPokemon, addPokemonFav, removePokemonFav } =
-    pokemonsSlice.actions;
+export const {
+    addPokemonsCache,
+    updatePokemon,
+    addNewPokemon,
+    removeNewPokemon,
+    addPokemonFav,
+    removePokemonFav,
+} = pokemonsSlice.actions;
 export default pokemonsSlice.reducer;

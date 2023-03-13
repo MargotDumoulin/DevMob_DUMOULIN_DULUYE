@@ -51,7 +51,7 @@ const getPokemon = (pokemon, encounter) => {
 
 export const getPokemonsWithDetails = async (
     pokemonsCached,
-    addPokemonDetails,
+    updatePokemon,
     page = 1
 ) => {
     try {

@@ -15,18 +15,13 @@ import { Divider } from "../general/Divider";
 import Assets from "../../definitions/Assets";
 import { getAllLocationsLight } from "../../api/PokeAPILocation";
 import { getAllTypesLight } from "../../api/PokeAPIType";
-import { useDispatch } from "react-redux";
-import { addNewPokemon } from "../../store/reducers/pokemonsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+    addNewPokemon,
+    updatePokemon,
+} from "../../store/reducers/pokemonsSlice";
 
 export const CreatePokemonScreen = ({ navigation, route }) => {
-    const {
-        control,
-        handleSubmit,
-        formState: { errors },
-    } = useForm({
-        defaultValues: {},
-    });
-
     const dispatch = useDispatch();
     const [newPokemonImage, setNewPokemonImage] = useState();
     const [loading, setLoading] = useState(true);
@@ -36,8 +31,39 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
     const [chosenTypeOne, setChosenTypeOne] = useState();
     const [chosenTypeOptional, setChosenTypeOptional] = useState();
 
+    const existingPokemon = useSelector((state) =>
+        state.pokemons.pokemonsCache.find(
+            (pokemon) => pokemon.id === route?.params?.pokemonID
+        )
+    );
+
+    const {
+        control,
+        handleSubmit,
+        formState: { errors },
+    } = useForm({
+        defaultValues: existingPokemon?.id
+            ? {
+                  name: existingPokemon.name,
+                  height: existingPokemon.height,
+                  weight: existingPokemon.weight,
+                  abilityOne: existingPokemon.abilities[0],
+                  abilityTwo: existingPokemon.abilities[1],
+                  abilityThree: existingPokemon.abilities[2],
+                  abilityFour: existingPokemon.abilities[3],
+                  hp: existingPokemon.baseStats.healthPoint,
+                  att: existingPokemon.baseStats.attack,
+                  def: existingPokemon.baseStats.def,
+                  attackSpe: existingPokemon.baseStats.spAtt,
+                  defenseSpe: existingPokemon.baseStats.spDef,
+                  speed: existingPokemon.baseStats.speed,
+              }
+            : {},
+    });
+
     const onSubmit = (data) => {
         const pokemon = {
+            ...(existingPokemon?.id ? { id: existingPokemon.id } : {}),
             locations: [chosenLocation.id],
             image: newPokemonImage,
             name: data.name,
@@ -66,27 +92,63 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
             ],
         };
 
-        dispatch(addNewPokemon(pokemon));
-        navigation.navigate("Pokédex");
+        const mutationToUse = !existingPokemon?.id
+            ? addNewPokemon(pokemon)
+            : updatePokemon(pokemon);
+
+        dispatch(mutationToUse);
+
+        navigation.navigate("Pokédex", { refreshResults: true });
     };
 
     const navigateToTakePicture = () => {
-        navigation.navigate("TakePicture");
+        navigation.navigate("TakePicture", {
+            ...(existingPokemon?.id ? { pokemonID: existingPokemon.id } : {}),
+        });
     };
 
     const fetchData = async () => {
         const resLoc = await getAllLocationsLight();
         const resTypes = await getAllTypesLight();
-        setChosenLocation(resLoc[0]);
+
         setLocations(resLoc);
         setTypes(resTypes);
-        setChosenTypeOne(resTypes[0]);
+
+        if (existingPokemon?.id) {
+            setChosenLocation(
+                resLoc.find((loc) => loc.id === existingPokemon.locations[0])
+            );
+
+            setChosenTypeOne(
+                resTypes.find(
+                    (type) =>
+                        type.name.toLowerCase() ===
+                        existingPokemon.types[0].toLowerCase()
+                )
+            );
+
+            if (existingPokemon.types.length > 1) {
+                setChosenTypeOptional(
+                    resTypes.find(
+                        (type) =>
+                            type.name.toLowerCase() ===
+                            existingPokemon.types[1].toLowerCase()
+                    )
+                );
+            }
+
+            setNewPokemonImage(existingPokemon.image);
+        } else {
+            setChosenTypeOne(resTypes[0]);
+            setChosenLocation(resLoc[0]);
+        }
+
         setLoading(false);
     };
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [route?.params?.pokemonID]);
 
     useEffect(() => {
         if (route?.params?.newPokemonImage) {
@@ -494,7 +556,10 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                 </View>
             )}
 
-            <Button title="ADD NEW POKEMON" onPress={handleSubmit(onSubmit)} />
+            <Button
+                title={existingPokemon?.id ? "Edit" : "Save"}
+                onPress={handleSubmit(onSubmit)}
+            />
         </ScrollView>
     );
 };

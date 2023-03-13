@@ -20,7 +20,7 @@ import PokemonListItem from "./PokemonListItem";
 import { useDispatch, useSelector } from "react-redux";
 import {
     addPokemonsCache,
-    addPokemonDetails,
+    updatePokemon,
 } from "../../store/reducers/pokemonsSlice";
 import PokemonTileItem from "./PokemonTileItem";
 import { FlatGrid } from "react-native-super-grid";
@@ -67,7 +67,6 @@ export const PokedexScreen = ({ navigation, route }) => {
     useEffect(() => {
         // Once cache is setup, we can initiate the search
         if (pokemonsCached.length > 0 && !isMounted) {
-            console.log({ pokemonsCachedTaille: pokemonsCached.length });
             searchPokemons([], 1);
             setIsMounted(true);
         }
@@ -106,7 +105,7 @@ export const PokedexScreen = ({ navigation, route }) => {
                         pokeDetails = await getPokemonById(
                             getPokemonId(pokemon.url)
                         );
-                        dispatch(addPokemonDetails(pokeDetails));
+                        dispatch(updatePokemon(pokeDetails));
                     }
                     pokemonsToAdd.push(
                         pokeDetails ? { ...pokeDetails, ...pokemon } : pokemon
@@ -135,7 +134,6 @@ export const PokedexScreen = ({ navigation, route }) => {
 
     const newSearchPokemons = () => {
         //Keyboard.dismiss();
-        console.log("on arrive là !");
         searchPokemons([], 1);
     };
 
