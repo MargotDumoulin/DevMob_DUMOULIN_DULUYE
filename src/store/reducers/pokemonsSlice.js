@@ -4,6 +4,7 @@ import { getPokemonId } from "../../api/PokeAPIPokemon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system";
 import * as Permissions from "expo-permissions";
+import * as MediaLibrary from "expo-media-library";
 
 const initialState = {
     pokemonsCache: [],
@@ -82,8 +83,6 @@ const pokemonsSlice = createSlice({
                                 .then((base64Img) => {
                                     delete pokemon.image;
 
-                                    // console.log({ base64Img });
-
                                     pokemon.image = `data:image/png;base64,${base64Img}`;
                                     console.log("fini pour une image");
                                     return pokemon;
@@ -106,6 +105,11 @@ const pokemonsSlice = createSlice({
                             console.log({fileUri: fileUri});
 
                             FileSystem.writeAsStringAsync(fileUri, JSON.stringify(array), {encoding: FileSystem.EncodingType.UTF8}).then(() => {
+                                console.log("ça a marché");
+
+                                MediaLibrary.saveToLibraryAsync(fileUri).then((r) => {
+                                    console.log({r});
+                                })
                             });
                         }
                     });
