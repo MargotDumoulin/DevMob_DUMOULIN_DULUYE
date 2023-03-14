@@ -15,7 +15,7 @@ const pokemonsSlice = createSlice({
     initialState: initialState,
     reducers: {
         addPokemonsCache(state, action) {
-            /*            AsyncStorage.clear();*/
+            AsyncStorage.clear();
             if (state.pokemonsCache.length == 0) {
                 state.pokemonsCache = action.payload;
             }
@@ -84,7 +84,7 @@ const pokemonsSlice = createSlice({
 
                                     // console.log({ base64Img });
 
-                                    pokemon.image = base64Img;
+                                    pokemon.image = `data:image/png;base64,${base64Img}`;
                                     console.log("fini pour une image");
                                     return pokemon;
                                 })
@@ -99,28 +99,20 @@ const pokemonsSlice = createSlice({
                 .then((array) => {
                     console.log("On termine");
 
-                    console.log({ array });
+                    Permissions.askAsync(Permissions.MEDIA_LIBRARY).then(permissions => {
+                        if (permissions.status === "granted") {
+                            let fileUri = FileSystem.documentDirectory + "export.json";
+
+                            console.log({fileUri: fileUri});
+
+                            FileSystem.writeAsStringAsync(fileUri, JSON.stringify(array), {encoding: FileSystem.EncodingType.UTF8}).then(() => {
+                            });
+                        }
+                    });
                 })
                 .catch((err) => {
                     console.error({ err });
                 });
-
-            /*            Permissions.askAsync(Permissions.MEDIA_LIBRARY).then(permissions => {
-                if (permissions.status === "granted") {
-                    let fileUri = FileSystem.documentDirectory + "export.json";
-
-                    console.log("Content");
-                    console.log(content);
-                    console.log({fileUri: fileUri});
-
-                    FileSystem.writeAsStringAsync(fileUri, content, {encoding: FileSystem.EncodingType.UTF8}).then(r => {
-                        FileSystem.readAsStringAsync(fileUri).then(
-                            (res) => {
-                                console.log(JSON.parse(res));
-                            });
-                    });
-                }
-            });*/
         },
         addPokemonFav(state, action) {
             state.pokemonsFav.push(action.payload);
