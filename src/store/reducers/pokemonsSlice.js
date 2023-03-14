@@ -1,9 +1,9 @@
-import {createSlice} from "@reduxjs/toolkit";
-import {cloneDeep} from "lodash";
-import {getPokemonId} from "../../api/PokeAPIPokemon";
+import { createSlice } from "@reduxjs/toolkit";
+import { cloneDeep } from "lodash";
+import { getPokemonId } from "../../api/PokeAPIPokemon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as FileSystem from 'expo-file-system';
-import * as Permissions from 'expo-permissions';
+import * as FileSystem from "expo-file-system";
+import * as Permissions from "expo-permissions";
 
 const initialState = {
     pokemonsCache: [],
@@ -57,44 +57,55 @@ const pokemonsSlice = createSlice({
         exportNewPokemon(state, action) {
             console.log("Export");
 
-            console.log({newPokemons: state.pokemonsCache.filter((pokemon) => pokemon?.isNew)});
+            console.log({
+                newPokemons: state.pokemonsCache.filter(
+                    (pokemon) => pokemon?.isNew
+                ),
+            });
 
-            const content = JSON.stringify(cloneDeep(state.pokemonsCache)
-                .filter((pokemon) => pokemon?.isNew)
-                .map((pokemon) => {
-                    delete pokemon.id;
+            const stateCopy = cloneDeep(state.pokemonsCache);
 
-                    return pokemon;
-                })
-                .map(async (pokemon) => {
-                    if (pokemon.image.startsWith("file://")) {
-                        console.log("Remplacement de l'image");
+            console.log("On commence");
+            Promise.all(
+                stateCopy
+                    .filter((pokemon) => pokemon?.isNew)
+                    .map((pokemon) => {
+                        delete pokemon.id;
 
-                        try {
-                            const base64Img = await FileSystem.readAsStringAsync(pokemon.image, {encoding: FileSystem.EncodingType.Base64});
+                        return pokemon;
+                    })
+                    .map((pokemon) => {
+                        if (pokemon.image.startsWith("file://")) {
+                            return FileSystem.readAsStringAsync(pokemon.image, {
+                                encoding: FileSystem.EncodingType.Base64,
+                            })
+                                .then((base64Img) => {
+                                    delete pokemon.image;
 
-                            delete pokemon.image;
+                                    // console.log({ base64Img });
 
-                            console.log({base64Img});
-
-                            pokemon.image = base64Img;
+                                    pokemon.image = base64Img;
+                                    console.log("fini pour une image");
+                                    return pokemon;
+                                })
+                                .catch((error) => {
+                                    console.log({ error });
+                                });
                         }
-                        catch (error) {
-                            console.log({error});
-                        }
-                    }
 
-                    console.log("Fin remplacement");
+                        return Promise.resolve(pokemon);
+                    })
+            )
+                .then((array) => {
+                    console.log("On termine");
 
-                    return pokemon;
+                    console.log({ array });
                 })
-            );
+                .catch((err) => {
+                    console.error({ err });
+                });
 
-            console.log("After");
-
-            console.log({content});
-
-/*            Permissions.askAsync(Permissions.MEDIA_LIBRARY).then(permissions => {
+            /*            Permissions.askAsync(Permissions.MEDIA_LIBRARY).then(permissions => {
                 if (permissions.status === "granted") {
                     let fileUri = FileSystem.documentDirectory + "export.json";
 
