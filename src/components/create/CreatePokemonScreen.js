@@ -113,8 +113,8 @@ export const CreatePokemonScreen = ({navigation, route}) => {
         const resLoc = await getAllLocationsLight();
         const resTypes = await getAllTypesLight();
 
-        setLocations(resLoc);
-        setTypes(resTypes);
+        setLocations(resLoc.sort((a, b) => a.name > b.name));
+        setTypes(resTypes.sort((a, b) => a.name > b.name));
 
         if (existingPokemon?.id) {
             setChosenLocation(
