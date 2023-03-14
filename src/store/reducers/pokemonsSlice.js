@@ -4,7 +4,6 @@ import {getPokemonId} from "../../api/PokeAPIPokemon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from 'expo-file-system';
 import * as Permissions from 'expo-permissions';
-import * as MediaLibrary from 'expo-media-library';
 
 const initialState = {
     pokemonsCache: [],
@@ -16,7 +15,7 @@ const pokemonsSlice = createSlice({
     initialState: initialState,
     reducers: {
         addPokemonsCache(state, action) {
-            AsyncStorage.clear();
+            /*            AsyncStorage.clear();*/
             if (state.pokemonsCache.length == 0) {
                 state.pokemonsCache = action.payload;
             }
@@ -58,21 +57,59 @@ const pokemonsSlice = createSlice({
         exportNewPokemon(state, action) {
             console.log("Export");
 
-            Permissions.askAsync(Permissions.MEDIA_LIBRARY).then(permissions => {
+            console.log({newPokemons: state.pokemonsCache.filter((pokemon) => pokemon?.isNew)});
+
+            const content = JSON.stringify(cloneDeep(state.pokemonsCache)
+                .filter((pokemon) => pokemon?.isNew)
+                .map((pokemon) => {
+                    delete pokemon.id;
+
+                    return pokemon;
+                })
+                .map(async (pokemon) => {
+                    if (pokemon.image.startsWith("file://")) {
+                        console.log("Remplacement de l'image");
+
+                        try {
+                            const base64Img = await FileSystem.readAsStringAsync(pokemon.image, {encoding: FileSystem.EncodingType.Base64});
+
+                            delete pokemon.image;
+
+                            console.log({base64Img});
+
+                            pokemon.image = base64Img;
+                        }
+                        catch (error) {
+                            console.log({error});
+                        }
+                    }
+
+                    console.log("Fin remplacement");
+
+                    return pokemon;
+                })
+            );
+
+            console.log("After");
+
+            console.log({content});
+
+/*            Permissions.askAsync(Permissions.MEDIA_LIBRARY).then(permissions => {
                 if (permissions.status === "granted") {
-                    let fileUri = FileSystem.documentDirectory + "text.txt";
+                    let fileUri = FileSystem.documentDirectory + "export.json";
 
-                    console.log(`File URI : ${fileUri}`);
+                    console.log("Content");
+                    console.log(content);
+                    console.log({fileUri: fileUri});
 
-                    FileSystem.writeAsStringAsync(fileUri, "Hello World", {encoding: FileSystem.EncodingType.UTF8}).then(r => {
-                        MediaLibrary.createAssetAsync(fileUri).then(asset => {
-                            MediaLibrary.createAlbumAsync("Download", asset, false).then(r => {
-                                console.log(r);
-                            })
-                        })
+                    FileSystem.writeAsStringAsync(fileUri, content, {encoding: FileSystem.EncodingType.UTF8}).then(r => {
+                        FileSystem.readAsStringAsync(fileUri).then(
+                            (res) => {
+                                console.log(JSON.parse(res));
+                            });
                     });
                 }
-            });
+            });*/
         },
         addPokemonFav(state, action) {
             state.pokemonsFav.push(action.payload);
