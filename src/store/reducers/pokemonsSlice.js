@@ -16,7 +16,6 @@ const pokemonsSlice = createSlice({
     initialState: initialState,
     reducers: {
         addPokemonsCache(state, action) {
-            AsyncStorage.clear();
             if (state.pokemonsCache.length == 0) {
                 state.pokemonsCache = action.payload;
             }
@@ -56,17 +55,8 @@ const pokemonsSlice = createSlice({
             );
         },
         exportNewPokemon(state, action) {
-            console.log("Export");
-
-            console.log({
-                newPokemons: state.pokemonsCache.filter(
-                    (pokemon) => pokemon?.isNew
-                ),
-            });
-
             const stateCopy = cloneDeep(state.pokemonsCache);
 
-            console.log("On commence");
             Promise.all(
                 stateCopy
                     .filter((pokemon) => pokemon?.isNew)
@@ -84,7 +74,6 @@ const pokemonsSlice = createSlice({
                                     delete pokemon.image;
 
                                     pokemon.image = `data:image/png;base64,${base64Img}`;
-                                    console.log("fini pour une image");
                                     return pokemon;
                                 })
                                 .catch((error) => {
@@ -96,23 +85,23 @@ const pokemonsSlice = createSlice({
                     })
             )
                 .then((array) => {
-                    console.log("On termine");
+                    Permissions.askAsync(Permissions.MEDIA_LIBRARY).then(
+                        (permissions) => {
+                            if (permissions.status === "granted") {
+                                const fileUri =
+                                    FileSystem.documentDirectory +
+                                    "export.json";
 
-                    Permissions.askAsync(Permissions.MEDIA_LIBRARY).then(permissions => {
-                        if (permissions.status === "granted") {
-                            let fileUri = FileSystem.documentDirectory + "export.json";
-
-                            console.log({fileUri: fileUri});
-
-                            FileSystem.writeAsStringAsync(fileUri, JSON.stringify(array), {encoding: FileSystem.EncodingType.UTF8}).then(() => {
-                                console.log("ça a marché");
-
-                                MediaLibrary.saveToLibraryAsync(fileUri).then((r) => {
-                                    console.log({r});
-                                })
-                            });
+                                FileSystem.writeAsStringAsync(
+                                    fileUri,
+                                    JSON.stringify(array),
+                                    { encoding: FileSystem.EncodingType.UTF8 }
+                                ).then(() => {
+                                    MediaLibrary.saveToLibraryAsync(fileUri);
+                                });
+                            }
                         }
-                    });
+                    );
                 })
                 .catch((err) => {
                     console.error({ err });
