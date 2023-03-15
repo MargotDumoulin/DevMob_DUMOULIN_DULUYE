@@ -20,6 +20,7 @@ import {
     addNewPokemon,
     updatePokemon,
 } from "../../store/reducers/pokemonsSlice";
+import { capitalize } from "../../utils/methods";
 
 export const CreatePokemonScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
@@ -47,10 +48,18 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                   name: existingPokemon.name,
                   height: existingPokemon.height,
                   weight: existingPokemon.weight,
-                  abilityOne: existingPokemon.abilities[0],
-                  abilityTwo: existingPokemon.abilities[1],
-                  abilityThree: existingPokemon.abilities[2],
-                  abilityFour: existingPokemon.abilities[3],
+                  abilityOne: existingPokemon.abilities[0]
+                      ? capitalize(existingPokemon.abilities[0])
+                      : undefined,
+                  abilityTwo: existingPokemon.abilities[1]
+                      ? capitalize(existingPokemon.abilities[1])
+                      : undefined,
+                  abilityThree: existingPokemon.abilities[2]
+                      ? capitalize(existingPokemon.abilities[2])
+                      : undefined,
+                  abilityFour: existingPokemon.abilities[3]
+                      ? capitalize(existingPokemon.abilities[3])
+                      : undefined,
                   hp: existingPokemon.baseStats.healthPoint,
                   att: existingPokemon.baseStats.attack,
                   def: existingPokemon.baseStats.defense,
