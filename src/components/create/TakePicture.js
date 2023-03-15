@@ -53,14 +53,14 @@ export const TakePicture = ({ navigation, route }) => {
                         onPress={toggleCameraType}
                     >
                         <Text style={styles.text}>Flip Camera</Text>
-                        <Text style={styles.text}>
-                            When your picture is taken, please wait a few
+                        <Text style={styles.subtext}>
+                            When clicking on the button, please wait a few
                             seconds before being redirected.
                         </Text>
                     </TouchableOpacity>
                 </View>
             </Camera>
-            <Button title="Photo" onPress={takePicture} />
+            <Button title="Take a picture" onPress={takePicture} />
         </View>
     );
 };
@@ -88,5 +88,9 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: "bold",
         color: "white",
+    },
+    subtext: {
+        fontSize: 16,
+        color: "lightgrey",
     },
 });
