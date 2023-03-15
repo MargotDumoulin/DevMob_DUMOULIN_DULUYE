@@ -256,7 +256,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                             }) => (
                                 <Input
                                     style={styles.input}
-                                    placeholder="Height"
+                                    placeholder="Height (dm)"
                                     onBlur={onBlur}
                                     onChangeText={onChange}
                                     value={value}
@@ -282,7 +282,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                             }) => (
                                 <Input
                                     style={styles.input}
-                                    placeholder="Weight"
+                                    placeholder="Weight (hg)"
                                     onBlur={onBlur}
                                     onChangeText={onChange}
                                     value={value}
