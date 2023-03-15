@@ -27,7 +27,7 @@ export const BaseStatProgressBar = ({stat, myStyle}) => {
 
     return (
         <Progress.Bar
-            progress={stat / 255}
+            progress={(stat ? stat : 0) / 255}
             width={null}
             color={getColor()}
             unfilledColor={Colors.progressBar.unfilledColor}

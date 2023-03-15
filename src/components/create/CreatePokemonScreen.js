@@ -1,5 +1,5 @@
-import { useForm, Controller } from "react-hook-form";
-import { useEffect, useState } from "react";
+import {useForm, Controller} from "react-hook-form";
+import {useEffect, useState} from "react";
 import {
     Text,
     View,
@@ -10,23 +10,18 @@ import {
     TextInput,
 } from "react-native";
 import ModalSelector from "react-native-modal-selector-searchable";
-import { Spinner, Input } from "@ui-kitten/components";
-import { Divider } from "../general/Divider";
+import {Spinner, Input} from "@ui-kitten/components";
+import {Divider} from "../general/Divider";
 import Assets from "../../definitions/Assets";
-import { getAllLocationsLight } from "../../api/PokeAPILocation";
-import { getAllTypesLight } from "../../api/PokeAPIType";
-import { useDispatch } from "react-redux";
-import { addNewPokemon } from "../../store/reducers/pokemonsSlice";
+import {getAllLocationsLight} from "../../api/PokeAPILocation";
+import {getAllTypesLight} from "../../api/PokeAPIType";
+import {useDispatch, useSelector} from "react-redux";
+import {
+    addNewPokemon,
+    updatePokemon,
+} from "../../store/reducers/pokemonsSlice";
 
-export const CreatePokemonScreen = ({ navigation, route }) => {
-    const {
-        control,
-        handleSubmit,
-        formState: { errors },
-    } = useForm({
-        defaultValues: {},
-    });
-
+export const CreatePokemonScreen = ({navigation, route}) => {
     const dispatch = useDispatch();
     const [newPokemonImage, setNewPokemonImage] = useState();
     const [loading, setLoading] = useState(true);
@@ -36,8 +31,39 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
     const [chosenTypeOne, setChosenTypeOne] = useState();
     const [chosenTypeOptional, setChosenTypeOptional] = useState();
 
+    const existingPokemon = useSelector((state) =>
+        state.pokemons.pokemonsCache.find(
+            (pokemon) => pokemon.id === route?.params?.pokemonID
+        )
+    );
+
+    const {
+        control,
+        handleSubmit,
+        formState: {errors},
+    } = useForm({
+        defaultValues: existingPokemon?.id
+            ? {
+                name: existingPokemon.name,
+                height: existingPokemon.height,
+                weight: existingPokemon.weight,
+                abilityOne: existingPokemon.abilities[0],
+                abilityTwo: existingPokemon.abilities[1],
+                abilityThree: existingPokemon.abilities[2],
+                abilityFour: existingPokemon.abilities[3],
+                hp: existingPokemon.baseStats.healthPoint,
+                att: existingPokemon.baseStats.attack,
+                def: existingPokemon.baseStats.defense,
+                spAtt: existingPokemon.baseStats.attackSpe,
+                spDef: existingPokemon.baseStats.defenseSpe,
+                speed: existingPokemon.baseStats.speed,
+            }
+            : {},
+    });
+
     const onSubmit = (data) => {
         const pokemon = {
+            ...(existingPokemon?.id ? {id: existingPokemon.id} : {}),
             locations: [chosenLocation.id],
             image: newPokemonImage,
             name: data.name,
@@ -66,27 +92,65 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
             ],
         };
 
-        dispatch(addNewPokemon(pokemon));
-        navigation.navigate("Pokédex");
+        const mutationToUse = !existingPokemon?.id
+            ? addNewPokemon(pokemon)
+            : updatePokemon(pokemon);
+
+        dispatch(mutationToUse);
+
+        navigation.navigate("PokedexScreen", {
+            refreshResults: true
+        });
     };
 
     const navigateToTakePicture = () => {
-        navigation.navigate("TakePicture");
+        navigation.navigate("TakePicture", {
+            ...(existingPokemon?.id ? {pokemonID: existingPokemon.id} : {}),
+        });
     };
 
     const fetchData = async () => {
         const resLoc = await getAllLocationsLight();
         const resTypes = await getAllTypesLight();
-        setChosenLocation(resLoc[0]);
-        setLocations(resLoc);
-        setTypes(resTypes);
-        setChosenTypeOne(resTypes[0]);
+
+        setLocations(resLoc.sort((a, b) => a.name > b.name));
+        setTypes(resTypes.sort((a, b) => a.name > b.name));
+
+        if (existingPokemon?.id) {
+            setChosenLocation(
+                resLoc.find((loc) => loc.id === existingPokemon.locations[0])
+            );
+
+            setChosenTypeOne(
+                resTypes.find(
+                    (type) =>
+                        type.name.toLowerCase() ===
+                        existingPokemon.types[0].toLowerCase()
+                )
+            );
+
+            if (existingPokemon.types.length > 1) {
+                setChosenTypeOptional(
+                    resTypes.find(
+                        (type) =>
+                            type.name.toLowerCase() ===
+                            existingPokemon.types[1].toLowerCase()
+                    )
+                );
+            }
+
+            setNewPokemonImage(existingPokemon.image);
+        } else {
+            setChosenTypeOne(resTypes[0]);
+            setChosenLocation(resLoc[0]);
+        }
+
         setLoading(false);
     };
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [route?.params?.pokemonID]);
 
     useEffect(() => {
         if (route?.params?.newPokemonImage) {
@@ -97,7 +161,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
     return (
         <ScrollView style={styles.container} keyboardShouldPersistTaps="always">
             {loading ? (
-                <Spinner />
+                <Spinner/>
             ) : (
                 <View style={styles.container}>
                     <View style={styles.mainInfoContainer}>
@@ -107,8 +171,8 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                                 source={
                                     newPokemonImage
                                         ? {
-                                              uri: newPokemonImage,
-                                          }
+                                            uri: newPokemonImage,
+                                        }
                                         : Assets.icons.missingIMG
                                 }
                             />
@@ -124,8 +188,8 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                                     required: true,
                                 }}
                                 render={({
-                                    field: { onChange, onBlur, value },
-                                }) => (
+                                             field: {onChange, onBlur, value},
+                                         }) => (
                                     <Input
                                         style={styles.input}
                                         placeholder="Pokemon's name"
@@ -159,7 +223,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                         </View>
                     </View>
 
-                    <Divider text="Base Info" width="90" />
+                    <Divider text="Base Info" width="90"/>
 
                     <View style={styles.pokemonBaseStatsContainer}>
                         <Controller
@@ -171,8 +235,8 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                                 },
                             }}
                             render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
+                                         field: {onChange, onBlur, value},
+                                     }) => (
                                 <Input
                                     style={styles.input}
                                     placeholder="Height"
@@ -197,8 +261,8 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                                 },
                             }}
                             render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
+                                         field: {onChange, onBlur, value},
+                                     }) => (
                                 <Input
                                     style={styles.input}
                                     placeholder="Weight"
@@ -216,12 +280,12 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                         )}
                     </View>
 
-                    <Divider text="Type(s)" width="90" />
+                    <Divider text="Type(s)" width="90"/>
 
                     <View style={styles.pokemonBaseStatsContainer}>
                         <ModalSelector
                             data={types}
-                            style={{ marginBottom: 10 }}
+                            style={{marginBottom: 10}}
                             keyExtractor={(item) => item.id}
                             labelExtractor={(item) => item.name}
                             onChange={(option) => {
@@ -252,7 +316,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                         </ModalSelector>
                     </View>
 
-                    <Divider text="Base stats" width="90" />
+                    <Divider text="Base stats" width="90"/>
 
                     <View style={styles.pokemonBaseStatsContainer}>
                         <Controller
@@ -264,8 +328,8 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                                 },
                             }}
                             render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
+                                         field: {onChange, onBlur, value},
+                                     }) => (
                                 <Input
                                     style={styles.input}
                                     placeholder="HP"
@@ -291,8 +355,8 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                                 },
                             }}
                             render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
+                                         field: {onChange, onBlur, value},
+                                     }) => (
                                 <Input
                                     style={styles.input}
                                     placeholder="ATT"
@@ -318,8 +382,8 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                                 },
                             }}
                             render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
+                                         field: {onChange, onBlur, value},
+                                     }) => (
                                 <Input
                                     style={styles.input}
                                     placeholder="DEF"
@@ -345,8 +409,8 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                                 },
                             }}
                             render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
+                                         field: {onChange, onBlur, value},
+                                     }) => (
                                 <Input
                                     style={styles.input}
                                     placeholder="SP ATT"
@@ -372,8 +436,8 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                                 },
                             }}
                             render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
+                                         field: {onChange, onBlur, value},
+                                     }) => (
                                 <Input
                                     style={styles.input}
                                     placeholder="SP DEF"
@@ -399,8 +463,8 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                                 },
                             }}
                             render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
+                                         field: {onChange, onBlur, value},
+                                     }) => (
                                 <Input
                                     style={styles.input}
                                     placeholder="SPEED"
@@ -419,7 +483,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                         )}
                     </View>
 
-                    <Divider text="Abilties" width="90" />
+                    <Divider text="Abilties" width="90"/>
 
                     <View style={styles.pokemonBaseStatsContainer}>
                         <Controller
@@ -428,8 +492,8 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                                 required: true,
                             }}
                             render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
+                                         field: {onChange, onBlur, value},
+                                     }) => (
                                 <Input
                                     style={styles.input}
                                     placeholder="Ability 1"
@@ -448,8 +512,8 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                         <Controller
                             control={control}
                             render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
+                                         field: {onChange, onBlur, value},
+                                     }) => (
                                 <Input
                                     style={styles.input}
                                     placeholder="Ability 2"
@@ -463,8 +527,8 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                         <Controller
                             control={control}
                             render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
+                                         field: {onChange, onBlur, value},
+                                     }) => (
                                 <Input
                                     style={styles.input}
                                     placeholder="Ability 3"
@@ -478,8 +542,8 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                         <Controller
                             control={control}
                             render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
+                                         field: {onChange, onBlur, value},
+                                     }) => (
                                 <Input
                                     style={styles.input}
                                     placeholder="Ability 4"
@@ -494,7 +558,10 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                 </View>
             )}
 
-            <Button title="ADD NEW POKEMON" onPress={handleSubmit(onSubmit)} />
+            <Button
+                title={existingPokemon?.id ? "Edit" : "Save"}
+                onPress={handleSubmit(onSubmit)}
+            />
         </ScrollView>
     );
 };
