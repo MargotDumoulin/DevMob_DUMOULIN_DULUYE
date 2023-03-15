@@ -110,6 +110,8 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
     };
 
     const fetchData = async () => {
+        setLoading(true);
+
         const resLoc = await getAllLocationsLight();
         const resTypes = await getAllTypesLight();
 
