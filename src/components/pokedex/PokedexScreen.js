@@ -83,7 +83,6 @@ export const PokedexScreen = ({ navigation, route }) => {
         // Setup cache
         const res = await getAllPokemons();
         dispatch(addPokemonsCache(res.results));
-        console.log({ resTaille: res.results.length });
     };
 
     const getFilterByDropdownCondition = (pokemon) => {
