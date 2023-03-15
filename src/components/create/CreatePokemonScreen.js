@@ -160,7 +160,9 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
     };
 
     useEffect(() => {
-        fetchData();
+        if (!route?.params?.newPokemonImage) {
+            fetchData();
+        }
     }, [route?.params?.pokemonID]);
 
     useEffect(() => {
