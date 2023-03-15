@@ -21,6 +21,7 @@ import {
     updatePokemon,
 } from "../../store/reducers/pokemonsSlice";
 import { capitalize } from "../../utils/methods";
+import { TakePicture } from "./TakePicture";
 
 export const CreatePokemonScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
@@ -31,6 +32,7 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
     const [chosenLocation, setChosenLocation] = useState();
     const [chosenTypeOne, setChosenTypeOne] = useState();
     const [chosenTypeOptional, setChosenTypeOptional] = useState();
+    const [isTakingPicture, setIsTakingPicture] = useState(false);
 
     const existingPokemon = useSelector((state) =>
         state.pokemons.pokemonsCache.find(
@@ -112,10 +114,13 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
         });
     };
 
-    const navigateToTakePicture = () => {
-        navigation.navigate("TakePicture", {
-            ...(existingPokemon?.id ? { pokemonID: existingPokemon.id } : {}),
-        });
+    const takePicture = () => {
+        setIsTakingPicture(true);
+    };
+
+    const onPictureTaken = (uri) => {
+        setIsTakingPicture(false);
+        setNewPokemonImage(uri);
     };
 
     const fetchData = async () => {
@@ -160,16 +165,8 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
     };
 
     useEffect(() => {
-        if (!route?.params?.newPokemonImage) {
-            fetchData();
-        }
+        fetchData();
     }, [route?.params?.pokemonID]);
-
-    useEffect(() => {
-        if (route?.params?.newPokemonImage) {
-            setNewPokemonImage(route?.params?.newPokemonImage);
-        }
-    }, [route?.params?.newPokemonImage]);
 
     return (
         <ScrollView
@@ -183,402 +180,411 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
                 </View>
             ) : (
                 <View style={styles.container}>
-                    <View style={styles.mainInfoContainer}>
-                        <View style={styles.pictureContainer}>
-                            <Image
-                                style={styles.image}
-                                source={
-                                    newPokemonImage
-                                        ? {
-                                              uri: newPokemonImage,
-                                          }
-                                        : Assets.icons.missingIMG
-                                }
-                            />
-                            <Button
-                                title="Add"
-                                onPress={navigateToTakePicture}
-                            />
-                        </View>
-                        <View style={styles.mainInfoControllerContainer}>
-                            <Controller
-                                control={control}
-                                rules={{
-                                    required: true,
-                                }}
-                                render={({
-                                    field: { onChange, onBlur, value },
-                                }) => (
-                                    <Input
-                                        style={styles.input}
-                                        placeholder="Pokemon's name"
-                                        onBlur={onBlur}
-                                        onChangeText={onChange}
-                                        value={value}
+                    {isTakingPicture ? (
+                        <TakePicture
+                            onPictureTaken={(res) => onPictureTaken(res)}
+                        />
+                    ) : (
+                        <View style={styles.containerContent}>
+                            <View style={styles.mainInfoContainer}>
+                                <View style={styles.pictureContainer}>
+                                    <Image
+                                        style={styles.image}
+                                        source={
+                                            newPokemonImage
+                                                ? {
+                                                      uri: newPokemonImage,
+                                                  }
+                                                : Assets.icons.missingIMG
+                                        }
                                     />
+                                    <Button title="Add" onPress={takePicture} />
+                                </View>
+                                <View
+                                    style={styles.mainInfoControllerContainer}
+                                >
+                                    <Controller
+                                        control={control}
+                                        rules={{
+                                            required: true,
+                                        }}
+                                        render={({
+                                            field: { onChange, onBlur, value },
+                                        }) => (
+                                            <Input
+                                                style={styles.input}
+                                                placeholder="Pokemon's name"
+                                                onBlur={onBlur}
+                                                onChangeText={onChange}
+                                                value={value}
+                                            />
+                                        )}
+                                        name="name"
+                                    />
+                                    {errors.name && (
+                                        <Text style={styles.errorMessage}>
+                                            This is required.
+                                        </Text>
+                                    )}
+                                    <ModalSelector
+                                        data={locations}
+                                        keyExtractor={(item) => item.id}
+                                        labelExtractor={(item) => item.name}
+                                        onChange={(option) => {
+                                            setChosenLocation(option);
+                                        }}
+                                    >
+                                        <TextInput
+                                            style={
+                                                styles.modalAutocompleteInput
+                                            }
+                                            editable={false}
+                                            placeholder="Canalave City"
+                                            value={chosenLocation.name}
+                                        />
+                                    </ModalSelector>
+                                </View>
+                            </View>
+
+                            <Divider text="Base Info" width="90" />
+
+                            <View style={styles.pokemonBaseStatsContainer}>
+                                <Controller
+                                    control={control}
+                                    rules={{
+                                        required: true,
+                                        pattern: {
+                                            value: /\d+/,
+                                        },
+                                    }}
+                                    render={({
+                                        field: { onChange, onBlur, value },
+                                    }) => (
+                                        <Input
+                                            style={styles.input}
+                                            placeholder="Height (dm)"
+                                            onBlur={onBlur}
+                                            onChangeText={onChange}
+                                            value={value}
+                                        />
+                                    )}
+                                    name="height"
+                                />
+                                {errors.height && (
+                                    <Text style={styles.errorMessage}>
+                                        This is required & must be a number.
+                                    </Text>
                                 )}
-                                name="name"
-                            />
-                            {errors.name && (
-                                <Text style={styles.errorMessage}>
-                                    This is required.
-                                </Text>
-                            )}
-                            <ModalSelector
-                                data={locations}
-                                keyExtractor={(item) => item.id}
-                                labelExtractor={(item) => item.name}
-                                onChange={(option) => {
-                                    setChosenLocation(option);
-                                }}
-                            >
-                                <TextInput
-                                    style={styles.modalAutocompleteInput}
-                                    editable={false}
-                                    placeholder="Canalave City"
-                                    value={chosenLocation.name}
+                                <Controller
+                                    control={control}
+                                    rules={{
+                                        required: true,
+                                        pattern: {
+                                            value: /\d+/,
+                                        },
+                                    }}
+                                    render={({
+                                        field: { onChange, onBlur, value },
+                                    }) => (
+                                        <Input
+                                            style={styles.input}
+                                            placeholder="Weight (hg)"
+                                            onBlur={onBlur}
+                                            onChangeText={onChange}
+                                            value={value}
+                                        />
+                                    )}
+                                    name="weight"
                                 />
-                            </ModalSelector>
+                                {errors.weight && (
+                                    <Text style={styles.errorMessage}>
+                                        This is required & must be a number.
+                                    </Text>
+                                )}
+                            </View>
+
+                            <Divider text="Type(s)" width="90" />
+
+                            <View style={styles.pokemonBaseStatsContainer}>
+                                <ModalSelector
+                                    data={types}
+                                    style={{ marginBottom: 10 }}
+                                    keyExtractor={(item) => item.id}
+                                    labelExtractor={(item) => item.name}
+                                    onChange={(option) => {
+                                        setChosenTypeOne(option);
+                                    }}
+                                >
+                                    <TextInput
+                                        style={styles.modalAutocompleteInput}
+                                        editable={false}
+                                        placeholder="Canalave City"
+                                        value={chosenTypeOne.name}
+                                    />
+                                </ModalSelector>
+                                <ModalSelector
+                                    data={types}
+                                    keyExtractor={(item) => item.id}
+                                    labelExtractor={(item) => item.name}
+                                    onChange={(option) => {
+                                        setChosenTypeOptional(option);
+                                    }}
+                                >
+                                    <TextInput
+                                        style={styles.modalAutocompleteInput}
+                                        editable={false}
+                                        placeholder="Optional second type"
+                                        value={chosenTypeOptional?.name}
+                                    />
+                                </ModalSelector>
+                            </View>
+
+                            <Divider text="Base stats" width="90" />
+
+                            <View style={styles.pokemonBaseStatsContainer}>
+                                <Controller
+                                    control={control}
+                                    rules={{
+                                        required: true,
+                                        pattern: {
+                                            value: /\d+/,
+                                        },
+                                    }}
+                                    render={({
+                                        field: { onChange, onBlur, value },
+                                    }) => (
+                                        <Input
+                                            style={styles.input}
+                                            placeholder="HP"
+                                            onBlur={onBlur}
+                                            type="number"
+                                            onChangeText={onChange}
+                                            value={value}
+                                        />
+                                    )}
+                                    name="hp"
+                                />
+                                {errors.hp && (
+                                    <Text style={styles.errorMessage}>
+                                        This is required & must be a number.
+                                    </Text>
+                                )}
+                                <Controller
+                                    control={control}
+                                    rules={{
+                                        required: true,
+                                        pattern: {
+                                            value: /\d+/,
+                                        },
+                                    }}
+                                    render={({
+                                        field: { onChange, onBlur, value },
+                                    }) => (
+                                        <Input
+                                            style={styles.input}
+                                            placeholder="ATT"
+                                            onBlur={onBlur}
+                                            type="number"
+                                            onChangeText={onChange}
+                                            value={value}
+                                        />
+                                    )}
+                                    name="att"
+                                />
+                                {errors.att && (
+                                    <Text style={styles.errorMessage}>
+                                        This is required & must be a number.
+                                    </Text>
+                                )}
+                                <Controller
+                                    control={control}
+                                    rules={{
+                                        required: true,
+                                        pattern: {
+                                            value: /\d+/,
+                                        },
+                                    }}
+                                    render={({
+                                        field: { onChange, onBlur, value },
+                                    }) => (
+                                        <Input
+                                            style={styles.input}
+                                            placeholder="DEF"
+                                            onBlur={onBlur}
+                                            type="number"
+                                            onChangeText={onChange}
+                                            value={value}
+                                        />
+                                    )}
+                                    name="def"
+                                />
+                                {errors.def && (
+                                    <Text style={styles.errorMessage}>
+                                        This is required & must be a number.
+                                    </Text>
+                                )}
+                                <Controller
+                                    control={control}
+                                    rules={{
+                                        required: true,
+                                        pattern: {
+                                            value: /\d+/,
+                                        },
+                                    }}
+                                    render={({
+                                        field: { onChange, onBlur, value },
+                                    }) => (
+                                        <Input
+                                            style={styles.input}
+                                            placeholder="SP ATT"
+                                            onBlur={onBlur}
+                                            type="number"
+                                            onChangeText={onChange}
+                                            value={value}
+                                        />
+                                    )}
+                                    name="spAtt"
+                                />
+                                {errors.spAtt && (
+                                    <Text style={styles.errorMessage}>
+                                        This is required & must be a number.
+                                    </Text>
+                                )}
+                                <Controller
+                                    control={control}
+                                    rules={{
+                                        required: true,
+                                        pattern: {
+                                            value: /\d+/,
+                                        },
+                                    }}
+                                    render={({
+                                        field: { onChange, onBlur, value },
+                                    }) => (
+                                        <Input
+                                            style={styles.input}
+                                            placeholder="SP DEF"
+                                            onBlur={onBlur}
+                                            type="number"
+                                            onChangeText={onChange}
+                                            value={value}
+                                        />
+                                    )}
+                                    name="spDef"
+                                />
+                                {errors.spDef && (
+                                    <Text style={styles.errorMessage}>
+                                        This is required & must be a number.
+                                    </Text>
+                                )}
+                                <Controller
+                                    control={control}
+                                    rules={{
+                                        required: true,
+                                        pattern: {
+                                            value: /\d+/,
+                                        },
+                                    }}
+                                    render={({
+                                        field: { onChange, onBlur, value },
+                                    }) => (
+                                        <Input
+                                            style={styles.input}
+                                            placeholder="SPEED"
+                                            onBlur={onBlur}
+                                            type="number"
+                                            onChangeText={onChange}
+                                            value={value}
+                                        />
+                                    )}
+                                    name="speed"
+                                />
+                                {errors.speed && (
+                                    <Text style={styles.errorMessage}>
+                                        This is required & must be a number.
+                                    </Text>
+                                )}
+                            </View>
+
+                            <Divider text="Abilties" width="90" />
+
+                            <View style={styles.pokemonBaseStatsContainer}>
+                                <Controller
+                                    control={control}
+                                    rules={{
+                                        required: true,
+                                    }}
+                                    render={({
+                                        field: { onChange, onBlur, value },
+                                    }) => (
+                                        <Input
+                                            style={styles.input}
+                                            placeholder="Ability 1"
+                                            onBlur={onBlur}
+                                            onChangeText={onChange}
+                                            value={value}
+                                        />
+                                    )}
+                                    name="abilityOne"
+                                />
+                                {errors.abilityOne && (
+                                    <Text style={styles.errorMessage}>
+                                        This is required
+                                    </Text>
+                                )}
+                                <Controller
+                                    control={control}
+                                    render={({
+                                        field: { onChange, onBlur, value },
+                                    }) => (
+                                        <Input
+                                            style={styles.input}
+                                            placeholder="Ability 2"
+                                            onBlur={onBlur}
+                                            onChangeText={onChange}
+                                            value={value}
+                                        />
+                                    )}
+                                    name="abilityTwo"
+                                />
+                                <Controller
+                                    control={control}
+                                    render={({
+                                        field: { onChange, onBlur, value },
+                                    }) => (
+                                        <Input
+                                            style={styles.input}
+                                            placeholder="Ability 3"
+                                            onBlur={onBlur}
+                                            onChangeText={onChange}
+                                            value={value}
+                                        />
+                                    )}
+                                    name="abilityThree"
+                                />
+                                <Controller
+                                    control={control}
+                                    render={({
+                                        field: { onChange, onBlur, value },
+                                    }) => (
+                                        <Input
+                                            style={styles.input}
+                                            placeholder="Ability 4"
+                                            onBlur={onBlur}
+                                            onChangeText={onChange}
+                                            value={value}
+                                        />
+                                    )}
+                                    name="abilityFour"
+                                />
+                            </View>
+
+                            <Button
+                                title={existingPokemon?.id ? "Edit" : "Save"}
+                                onPress={handleSubmit(onSubmit)}
+                            />
                         </View>
-                    </View>
-
-                    <Divider text="Base Info" width="90" />
-
-                    <View style={styles.pokemonBaseStatsContainer}>
-                        <Controller
-                            control={control}
-                            rules={{
-                                required: true,
-                                pattern: {
-                                    value: /\d+/,
-                                },
-                            }}
-                            render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
-                                <Input
-                                    style={styles.input}
-                                    placeholder="Height (dm)"
-                                    onBlur={onBlur}
-                                    onChangeText={onChange}
-                                    value={value}
-                                />
-                            )}
-                            name="height"
-                        />
-                        {errors.height && (
-                            <Text style={styles.errorMessage}>
-                                This is required & must be a number.
-                            </Text>
-                        )}
-                        <Controller
-                            control={control}
-                            rules={{
-                                required: true,
-                                pattern: {
-                                    value: /\d+/,
-                                },
-                            }}
-                            render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
-                                <Input
-                                    style={styles.input}
-                                    placeholder="Weight (hg)"
-                                    onBlur={onBlur}
-                                    onChangeText={onChange}
-                                    value={value}
-                                />
-                            )}
-                            name="weight"
-                        />
-                        {errors.weight && (
-                            <Text style={styles.errorMessage}>
-                                This is required & must be a number.
-                            </Text>
-                        )}
-                    </View>
-
-                    <Divider text="Type(s)" width="90" />
-
-                    <View style={styles.pokemonBaseStatsContainer}>
-                        <ModalSelector
-                            data={types}
-                            style={{ marginBottom: 10 }}
-                            keyExtractor={(item) => item.id}
-                            labelExtractor={(item) => item.name}
-                            onChange={(option) => {
-                                setChosenTypeOne(option);
-                            }}
-                        >
-                            <TextInput
-                                style={styles.modalAutocompleteInput}
-                                editable={false}
-                                placeholder="Canalave City"
-                                value={chosenTypeOne.name}
-                            />
-                        </ModalSelector>
-                        <ModalSelector
-                            data={types}
-                            keyExtractor={(item) => item.id}
-                            labelExtractor={(item) => item.name}
-                            onChange={(option) => {
-                                setChosenTypeOptional(option);
-                            }}
-                        >
-                            <TextInput
-                                style={styles.modalAutocompleteInput}
-                                editable={false}
-                                placeholder="Optional second type"
-                                value={chosenTypeOptional?.name}
-                            />
-                        </ModalSelector>
-                    </View>
-
-                    <Divider text="Base stats" width="90" />
-
-                    <View style={styles.pokemonBaseStatsContainer}>
-                        <Controller
-                            control={control}
-                            rules={{
-                                required: true,
-                                pattern: {
-                                    value: /\d+/,
-                                },
-                            }}
-                            render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
-                                <Input
-                                    style={styles.input}
-                                    placeholder="HP"
-                                    onBlur={onBlur}
-                                    type="number"
-                                    onChangeText={onChange}
-                                    value={value}
-                                />
-                            )}
-                            name="hp"
-                        />
-                        {errors.hp && (
-                            <Text style={styles.errorMessage}>
-                                This is required & must be a number.
-                            </Text>
-                        )}
-                        <Controller
-                            control={control}
-                            rules={{
-                                required: true,
-                                pattern: {
-                                    value: /\d+/,
-                                },
-                            }}
-                            render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
-                                <Input
-                                    style={styles.input}
-                                    placeholder="ATT"
-                                    onBlur={onBlur}
-                                    type="number"
-                                    onChangeText={onChange}
-                                    value={value}
-                                />
-                            )}
-                            name="att"
-                        />
-                        {errors.att && (
-                            <Text style={styles.errorMessage}>
-                                This is required & must be a number.
-                            </Text>
-                        )}
-                        <Controller
-                            control={control}
-                            rules={{
-                                required: true,
-                                pattern: {
-                                    value: /\d+/,
-                                },
-                            }}
-                            render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
-                                <Input
-                                    style={styles.input}
-                                    placeholder="DEF"
-                                    onBlur={onBlur}
-                                    type="number"
-                                    onChangeText={onChange}
-                                    value={value}
-                                />
-                            )}
-                            name="def"
-                        />
-                        {errors.def && (
-                            <Text style={styles.errorMessage}>
-                                This is required & must be a number.
-                            </Text>
-                        )}
-                        <Controller
-                            control={control}
-                            rules={{
-                                required: true,
-                                pattern: {
-                                    value: /\d+/,
-                                },
-                            }}
-                            render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
-                                <Input
-                                    style={styles.input}
-                                    placeholder="SP ATT"
-                                    onBlur={onBlur}
-                                    type="number"
-                                    onChangeText={onChange}
-                                    value={value}
-                                />
-                            )}
-                            name="spAtt"
-                        />
-                        {errors.spAtt && (
-                            <Text style={styles.errorMessage}>
-                                This is required & must be a number.
-                            </Text>
-                        )}
-                        <Controller
-                            control={control}
-                            rules={{
-                                required: true,
-                                pattern: {
-                                    value: /\d+/,
-                                },
-                            }}
-                            render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
-                                <Input
-                                    style={styles.input}
-                                    placeholder="SP DEF"
-                                    onBlur={onBlur}
-                                    type="number"
-                                    onChangeText={onChange}
-                                    value={value}
-                                />
-                            )}
-                            name="spDef"
-                        />
-                        {errors.spDef && (
-                            <Text style={styles.errorMessage}>
-                                This is required & must be a number.
-                            </Text>
-                        )}
-                        <Controller
-                            control={control}
-                            rules={{
-                                required: true,
-                                pattern: {
-                                    value: /\d+/,
-                                },
-                            }}
-                            render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
-                                <Input
-                                    style={styles.input}
-                                    placeholder="SPEED"
-                                    onBlur={onBlur}
-                                    type="number"
-                                    onChangeText={onChange}
-                                    value={value}
-                                />
-                            )}
-                            name="speed"
-                        />
-                        {errors.speed && (
-                            <Text style={styles.errorMessage}>
-                                This is required & must be a number.
-                            </Text>
-                        )}
-                    </View>
-
-                    <Divider text="Abilties" width="90" />
-
-                    <View style={styles.pokemonBaseStatsContainer}>
-                        <Controller
-                            control={control}
-                            rules={{
-                                required: true,
-                            }}
-                            render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
-                                <Input
-                                    style={styles.input}
-                                    placeholder="Ability 1"
-                                    onBlur={onBlur}
-                                    onChangeText={onChange}
-                                    value={value}
-                                />
-                            )}
-                            name="abilityOne"
-                        />
-                        {errors.abilityOne && (
-                            <Text style={styles.errorMessage}>
-                                This is required
-                            </Text>
-                        )}
-                        <Controller
-                            control={control}
-                            render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
-                                <Input
-                                    style={styles.input}
-                                    placeholder="Ability 2"
-                                    onBlur={onBlur}
-                                    onChangeText={onChange}
-                                    value={value}
-                                />
-                            )}
-                            name="abilityTwo"
-                        />
-                        <Controller
-                            control={control}
-                            render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
-                                <Input
-                                    style={styles.input}
-                                    placeholder="Ability 3"
-                                    onBlur={onBlur}
-                                    onChangeText={onChange}
-                                    value={value}
-                                />
-                            )}
-                            name="abilityThree"
-                        />
-                        <Controller
-                            control={control}
-                            render={({
-                                field: { onChange, onBlur, value },
-                            }) => (
-                                <Input
-                                    style={styles.input}
-                                    placeholder="Ability 4"
-                                    onBlur={onBlur}
-                                    onChangeText={onChange}
-                                    value={value}
-                                />
-                            )}
-                            name="abilityFour"
-                        />
-                    </View>
-
-                    <Button
-                        title={existingPokemon?.id ? "Edit" : "Save"}
-                        onPress={handleSubmit(onSubmit)}
-                    />
+                    )}
                 </View>
             )}
         </ScrollView>
@@ -586,9 +592,12 @@ export const CreatePokemonScreen = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
+    containerContent: {
         flex: 1,
         margin: 10,
+    },
+    container: {
+        flex: 1,
     },
     loaderContainer: {
         display: "flex",

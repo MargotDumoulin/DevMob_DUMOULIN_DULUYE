@@ -4,9 +4,8 @@ import { MapScreen } from "./map/MapScreen";
 import { PokedexScreen } from "./pokedex/PokedexScreen";
 import { Pokemon } from "./pokedex/Pokemon";
 import { CreatePokemonScreen } from "./create/CreatePokemonScreen";
-import { TakePicture } from "./create/TakePicture";
 import Colors from "../definitions/Colors";
-import {Image, StyleSheet} from "react-native";
+import { Image, StyleSheet } from "react-native";
 import Assets from "../definitions/Assets";
 
 const MapStackNavigator = createStackNavigator();
@@ -21,7 +20,7 @@ function MapStack() {
             <MapStackNavigator.Screen
                 name="MapScreen"
                 component={MapScreen}
-                options={{title: "Carte"}}
+                options={{ title: "Carte" }}
             />
         </MapStackNavigator.Navigator>
     );
@@ -33,22 +32,22 @@ function PokedexStack() {
             <PokedexStackNavigator.Screen
                 name="PokedexScreen"
                 component={PokedexScreen}
-                options={{title: "Pokédex"}}
+                options={{ title: "Pokédex" }}
             />
             <PokedexStackNavigator.Screen
                 name="ViewPokemon"
                 component={Pokemon}
-                options={{title: "Pokémon"}}
+                options={{ title: "Pokémon" }}
             />
             <PokedexStackNavigator.Screen
                 name="MapScreen"
                 component={MapScreen}
-                options={{title: "Carte"}}
+                options={{ title: "Carte" }}
             />
             <CreatePokemonStackNavigator.Screen
                 name="CreatePokemonScreen"
                 component={CreatePokemonScreen}
-                options={{title: "Création"}}
+                options={{ title: "Création" }}
             />
         </PokedexStackNavigator.Navigator>
     );
@@ -60,12 +59,7 @@ function CreatePokemonStack() {
             <CreatePokemonStackNavigator.Screen
                 name="CreatePokemonScreen"
                 component={CreatePokemonScreen}
-                options={{title: "Création"}}
-            />
-            <CreatePokemonStackNavigator.Screen
-                name="TakePicture"
-                component={TakePicture}
-                options={{ title: "Photo" }}
+                options={{ title: "Création" }}
             />
         </CreatePokemonStackNavigator.Navigator>
     );
@@ -77,22 +71,46 @@ function RootStack() {
             screenOptions={{
                 tabBarActiveTintColor: "red",
                 tabBarInactiveTintColor: Colors.primary_blue,
-                headerShown: false
-        }}
+                headerShown: false,
+            }}
             initialRouteName="Pokédex"
         >
             <Tab.Screen
                 name="Carte"
                 component={MapStack}
-                options={() => ({tabBarIcon: ({focused}) => <Image source={Assets.icons.map} style={focused ? styles.iconFocused : styles.icon}/>})}/>
+                options={() => ({
+                    tabBarIcon: ({ focused }) => (
+                        <Image
+                            source={Assets.icons.map}
+                            style={focused ? styles.iconFocused : styles.icon}
+                        />
+                    ),
+                })}
+            />
             <Tab.Screen
                 name="Pokédex"
                 component={PokedexStack}
-                options={() => ({tabBarIcon: ({focused}) => <Image source={Assets.icons.pokedex} style={focused ? styles.iconFocused : styles.icon}/>})}/>
+                options={() => ({
+                    tabBarIcon: ({ focused }) => (
+                        <Image
+                            source={Assets.icons.pokedex}
+                            style={focused ? styles.iconFocused : styles.icon}
+                        />
+                    ),
+                })}
+            />
             <Tab.Screen
                 name="Creation"
                 component={CreatePokemonStack}
-                options={() => ({tabBarIcon: ({focused}) => <Image source={Assets.icons.add} style={focused ? styles.iconFocused : styles.icon}/>})}/>
+                options={() => ({
+                    tabBarIcon: ({ focused }) => (
+                        <Image
+                            source={Assets.icons.add}
+                            style={focused ? styles.iconFocused : styles.icon}
+                        />
+                    ),
+                })}
+            />
         </Tab.Navigator>
     );
 }
@@ -103,11 +121,11 @@ const styles = StyleSheet.create({
     icon: {
         height: 28,
         width: 28,
-        tintColor: Colors.primary_blue
+        tintColor: Colors.primary_blue,
     },
     iconFocused: {
         height: 28,
         width: 28,
-        tintColor: "red"
-    }
+        tintColor: "red",
+    },
 });

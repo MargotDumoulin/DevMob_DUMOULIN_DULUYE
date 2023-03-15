@@ -2,7 +2,7 @@ import { Text, View, Button, StyleSheet, TouchableOpacity } from "react-native";
 import { Camera, CameraType } from "expo-camera";
 import { useState, useRef } from "react";
 
-export const TakePicture = ({ navigation, route }) => {
+export const TakePicture = ({ onPictureTaken }) => {
     const [type, setType] = useState(CameraType.back);
     const [permission, requestPermission] = Camera.useCameraPermissions();
     const camera = useRef(null);
@@ -10,12 +10,7 @@ export const TakePicture = ({ navigation, route }) => {
     const takePicture = async () => {
         try {
             const res = await camera.current.takePictureAsync();
-            navigation.navigate("CreatePokemonScreen", {
-                newPokemonImage: res.uri,
-                ...(route?.params?.pokemonID
-                    ? { pokemonID: route?.params?.pokemonID }
-                    : {}),
-            });
+            onPictureTaken(res.uri);
         } catch (e) {
             console.log({ e });
         }
