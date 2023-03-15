@@ -1,8 +1,9 @@
-import { View, Text } from "react-native";
+import { View, StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { getAllLocationsLight } from "../../api/PokeAPILocation";
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
+import { Spinner } from "@ui-kitten/components";
 import { geo32 } from "../../utils/methods";
 
 export const MapScreen = ({ route }) => {
@@ -111,8 +112,20 @@ export const MapScreen = ({ route }) => {
                     })}
                 </MapView>
             ) : (
-                <Text>Nop</Text>
+                <View style={styles.loaderContainer}>
+                    <Spinner size="giant" />
+                </View>
             )}
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    loaderContainer: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100%",
+        width: "100%",
+    },
+});
