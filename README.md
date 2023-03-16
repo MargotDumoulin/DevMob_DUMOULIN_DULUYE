@@ -28,6 +28,10 @@ Projet de DevMob de **Antony DULUYE** et **DUMOULIN Margot**.
 
 Vous pourrez trouver des démos du projet sur le drive suivant : [ici](https://drive.google.com/drive/folders/1dAkZBhqewJ2kGH2dxPdguauIWGdi91Zg?usp=sharing)
 
+![Demo 1](https://i.imgur.com/snHtVu1.png)
+![Demo 2](https://i.imgur.com/BR885F6.png)
+![Demo 3](https://i.imgur.com/J36weGa.png)
+
 ## Disclaimer :warning:
 
 La recherche des pokémons, au lancement de l'application, prend du temps et nous en sommes conscients.
