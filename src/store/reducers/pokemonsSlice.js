@@ -74,7 +74,6 @@ const pokemonsSlice = createSlice({
                                 .then((base64Img) => {
                                     delete pokemon.image;
 
-                                    console.log({img: base64Img.base64, length: base64Img.base64.length})
                                     pokemon.image = `data:image/png;base64,${base64Img.base64}`;
                                     return pokemon;
                                 })
