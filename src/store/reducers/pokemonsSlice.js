@@ -1,10 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { cloneDeep } from "lodash";
 import { getPokemonId } from "../../api/PokeAPIPokemon";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system";
 import * as Permissions from "expo-permissions";
 import * as MediaLibrary from "expo-media-library";
+import { manipulateAsync } from 'expo-image-manipulator';
 
 const initialState = {
     pokemonsCache: [],
@@ -67,13 +67,15 @@ const pokemonsSlice = createSlice({
                     })
                     .map((pokemon) => {
                         if (pokemon.image.startsWith("file://")) {
-                            return FileSystem.readAsStringAsync(pokemon.image, {
-                                encoding: FileSystem.EncodingType.Base64,
-                            })
+                            return manipulateAsync(pokemon.image,
+                                [{resize: {height: 355, width: 355}}],
+                                {base64: true}
+                            )
                                 .then((base64Img) => {
                                     delete pokemon.image;
 
-                                    pokemon.image = `data:image/png;base64,${base64Img}`;
+                                    console.log({img: base64Img.base64, length: base64Img.base64.length})
+                                    pokemon.image = `data:image/png;base64,${base64Img.base64}`;
                                     return pokemon;
                                 })
                                 .catch((error) => {
