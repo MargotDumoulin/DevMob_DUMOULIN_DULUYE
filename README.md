@@ -26,7 +26,7 @@ Projet de DevMob de **Antony DULUYE** et **DUMOULIN Margot**.
 
 ## Démonstration
 
-Vous pourrez trouver des démos du projet sur le drive suivant : [ici](https://drive.google.com/file/d/1pQbqK_k59nNavCHLCWv7W6Wt3nW_K3oG/view?usp=share_link)
+Vous pourrez trouver des démos du projet sur le drive suivant : [ici](https://drive.google.com/drive/folders/1dAkZBhqewJ2kGH2dxPdguauIWGdi91Zg?usp=sharing)
 
 ## Disclaimer :warning:
 
