@@ -9,6 +9,11 @@ Projet de DevMob de **Antony DULUYE** et **DUMOULIN Margot**.
     -   Distinction pokémons customisés/vrai pokémons (Badge "NEW")
     -   Import pokémons créés
     -   Export pokémons créés
+        - Le fichier est enregistrée dans le dossier `/DCIM` sur Android
+        - Le fichier est nommé `export.json`
+        - Si `export.json` existe déjà, les fichiers seront nommés `export_0.json`, `export_1.json`, etc...
+        - Un fichier exemple est présent sur le Drive [ici](https://drive.google.com/drive/folders/1dAkZBhqewJ2kGH2dxPdguauIWGdi91Zg?usp=sharing)
+        - Les images sont converties en base64 et compressées afin d'être exportées
     -   Recherche par nom
         -   Filtrer par nouveaux pokémons, pokémons originaux, pokémons favoris
     -   Au clic sur un pokémon > Vue detaillee des infos d’un pokémon
