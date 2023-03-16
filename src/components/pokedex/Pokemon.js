@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
     },
     containerJauge: {
         margin: 15,
-        flex: 3,
+        flex: 2,
     },
     containerBaseStats: {
         flexDirection: "row",
