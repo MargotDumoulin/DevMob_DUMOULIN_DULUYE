@@ -53,6 +53,9 @@ const pokemonsSlice = createSlice({
             state.pokemonsCache = state.pokemonsCache.filter(
                 (pokemon) => pokemon.id !== action.payload
             );
+            state.pokemonsFav = state.pokemonsFav.filter(
+                (pokemonId) => pokemonId !== action.payload
+            );
         },
         exportNewPokemon(state, action) {
             const stateCopy = cloneDeep(state.pokemonsCache);
